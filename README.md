@@ -23,14 +23,13 @@ MEMBER = {M} (1, 2, 3, ... N)
 ## HPC Clusters
 
 ### Stampede3
-#### Inference Data:
-The inference example can be found: `/scratch/10786/bgong1/predictions`
+#### Inference Data: `/scratch/10786/bgong1/predictions`
 #### Ancillary Data:
 - Land-sea mask: `/scratch/10786/bgong1/gt_data/land_sea_mask_180x360_c.nc`
 - ERA5 ground truth data:  `/scratch/10786/bgong1/gt_data/2018_180x360.nc`
 ### Midway
 
-#### Inference Data:`/project/pedramh/bing/PanguWeather/v2.0/HPC_scripts/results/S2S/1/predictions`
+#### Inference Data: `/project/pedramh/bing/PanguWeather/v2.0/HPC_scripts/results/S2S/1/predictions`
 #### Ancillary Data:
 - Land-sea mask: `/project/pedramh/bing/PanguWeather/v2.0/data/land_sea_mask_180x360_c.nc`
 - ERA5 ground truth data: `/project/pedramh/bing/PanguWeather/v2.0/data/2018_180x360.nc`
