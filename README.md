@@ -3,7 +3,6 @@
 ## Naming & Data Conventions
 
 ### Naming
-
 #### Probalistic: pangu_plasim_{EXPERIMENT}_24h_{N_STEPS}step_{DATE}_ens_{MEMBER}.nc
 
 EXPERIMENT = {EXP} (1, 2, 3, ...)
@@ -23,42 +22,23 @@ MEMBER = {M} (1, 2, 3, ... N)
 
 ## HPC Clusters
 
-### Derecho
-
-#### Environment:
-
-#### Data:
-##### Verification Data:
-
-*Data_name*: PATH
-
-##### Inference Data:
-
-##### Ancillary Data:
-
-Land-sea mask: PATH
-
 ### Stampede3
+#### Inference Data:
+The inference example can be found: `/scratch/10786/bgong1/predictions`
+#### Ancillary Data:
+- Land-sea mask: `/scratch/10786/bgong1/gt_data/land_sea_mask_180x360_c.nc`
+- ERA5 ground truth data:  `/scratch/10786/bgong1/gt_data/2018_180x360.nc`
+### Midway
 
-#### Environment:
+#### Inference Data:`/project/pedramh/bing/PanguWeather/v2.0/HPC_scripts/results/S2S/1/predictions`
+#### Ancillary Data:
+- Land-sea mask: `/project/pedramh/bing/PanguWeather/v2.0/data/land_sea_mask_180x360_c.nc`
+- ERA5 ground truth data: `/project/pedramh/bing/PanguWeather/v2.0/data/2018_180x360.nc`
 
-#### Data:
-##### Verification Data:
+### Derecho
+#### Inference Data:
 
-##### Inference Data:
-
-##### Ancillary Data:
-
-### Midway3
-
-#### Environment:
-
-#### Data:
-##### Verification Data:
-
-##### Inference Data:
-
-##### Ancillary Data:
+#### Ancillary Data:
 
 ## Metrics
 
