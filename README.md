@@ -35,10 +35,9 @@ The inference example can be found: `/scratch/10786/bgong1/predictions`
 - Land-sea mask: `/project/pedramh/bing/PanguWeather/v2.0/data/land_sea_mask_180x360_c.nc`
 - ERA5 ground truth data: `/project/pedramh/bing/PanguWeather/v2.0/data/2018_180x360.nc`
 
-### Derecho
-#### Inference Data:
-
-#### Ancillary Data:
+### Derecho: 
+#### Inference Data: `/glade/campaign/univ/uchi0014/bing/predictions/`
+#### Ancillary Data: `/glade/campaign/univ/uchi0014/bing/gt_data`
 
 ## Metrics
 
