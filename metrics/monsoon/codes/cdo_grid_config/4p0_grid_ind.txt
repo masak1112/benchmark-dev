@@ -1,0 +1,8 @@
+gridtype  = lonlat
+xsize     = 9              # lon size
+ysize     = 8              # lat size
+xfirst    = 68            # first lon center
+xinc      = 4              # 2° increments in lon
+yfirst    = 8             # first lat center
+yinc      = 4               # 2° increments in lat
+
