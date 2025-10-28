@@ -1020,6 +1020,7 @@ def main():
     ds.attrs['max_forecast_day'] = args.max_forecast_day
     ds.attrs['mok_filter'] = int(args.mok)  # Convert boolean to integer (0 or 1)
     
+    
     # Save to NetCDF
     ds.to_netcdf(args.output_file)
     print(f"\nSpatial metrics saved to: {args.output_file}")

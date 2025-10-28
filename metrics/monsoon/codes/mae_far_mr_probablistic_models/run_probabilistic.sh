@@ -1,0 +1,12 @@
+python mae_far_mr_probabilistic_models.py \
+    --years 2019 2020 2021 2022 2023 2024 \
+    --model_forecast_dir /glade/derecho/scratch/rajatm/monsoon_onset_eval_data/ngcm51/climatology/tp_2p0 \
+    --imd_folder /glade/derecho/scratch/rajatm/monsoon_onset_benchmarking_data_codes/imd_rainfall_data/2p0 \
+    --thres_file /glade/derecho/scratch/rajatm/monsoon_onset_eval_data/mwset2x2.nc4 \
+    --shpfile_path /glade/derecho/scratch/rajatm/monsoon_onset_benchmarking_data_codes/ind_map_shpfile/india_shapefile.shp \
+    --tolerance_days 5 \
+    --verification_window 16 \
+    --forecast_days 30 \
+    --mok \
+    --output_file results_1-30day_MOK.nc \
+    --plot_dir ./output/plots
