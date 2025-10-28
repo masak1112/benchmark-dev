@@ -1,0 +1,12 @@
+# Step to do this metric
+
+On NCAR Derecho
+
+cd ./cal_pc folder
+
+./pre_process.sh
+module load ncl
+ncl cal_s2s_pc.ncl
+
+cd ../plot
+plot_BCC.ipynb
