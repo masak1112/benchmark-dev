@@ -1,0 +1,14 @@
+python mae_far_mr_deterministic_models.py \
+    --years 2019 2020 2021 2022 2023 2024 \
+    --model_forecast_dir /glade/derecho/scratch/rajatm/monsoon_onset_benchmarking_data_codes/model_forecast_data/AIFS_v1_1/daily_0z/tp_4p0_lsm \
+    --imd_folder /glade/derecho/scratch/rajatm/monsoon_onset_benchmarking_data_codes/imd_rainfall_data/4p0 \
+    --thres_file /glade/derecho/scratch/rajatm/monsoon_onset_benchmarking_data_codes/imd_onset_threshold/mwset4x4.nc4 \
+    --file_pattern {}.nc \
+    --shpfile_path /glade/derecho/scratch/rajatm/monsoon_onset_benchmarking_data_codes/ind_map_shpfile/india_shapefile.shp \
+    --tolerance_days 3 \
+    --verification_window 1 \
+    --forecast_days 15 \
+    --max_forecast_day 15 \
+    --mok \
+    --output_file results_aifsv1pt1_1-15day_MOK.nc \
+    --plot_dir ./

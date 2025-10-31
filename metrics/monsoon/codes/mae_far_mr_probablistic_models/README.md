@@ -20,7 +20,7 @@ pip install numpy xarray pandas matplotlib geopandas argparse pathlib
 ### Required Data Files
 1. **Model Data**: NetCDF files with precipitation forecasts
    - Both the forecast and ground truth (IMD data and threshold) needs to be on the same grid. This generally requires regridding the forecast output to the IMD grid. This can be done using **CDO** : `cdo rempacon,<gridfile.txt> <input_file.nc> <output_file.nc>`  
-   - Format: `{year}.nc`
+   - Format: `{year}.nc` or specify the yearly file name format with the input `file_format`
    - Variables: `tp` (total precipitation) daily precip in mm
    - Dimensions: `init_time/time`:intialization date in datetime64[ns], `day`/`step`: forecast step (0-35 in days) in int64, `lat`, `lon`, `number/member`:ensemble member number (1,2,3...n, where n is the total number of ensemble members) in int64 
 

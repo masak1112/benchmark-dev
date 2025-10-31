@@ -20,7 +20,7 @@ pip install numpy xarray pandas matplotlib geopandas argparse pathlib
 ### Required Data Files
 1. **Model Data**: NetCDF files with precipitation forecasts
    - Both the forecast and ground truth (IMD data and threshold) needs to be on the same grid. This generally requires regridding the forecast output to the IMD grid. This can be done using **CDO** : `cdo rempacon,<gridfile.txt> <input_file.nc> <output_file.nc>`  
-   - Format: `{year}.nc`
+   - Format: `{year}.nc` is default but the argument `file_pattern.nc` can be used for files named in a different convention
    - Variables: `tp` (total precipitation) daily precip in mm
    - Dimensions: `init_time/time`:intialization date in datetime64[ns], `day`/`step`: forecast step (0-35 in days) in int64, `lat`, `lon`
 
@@ -52,6 +52,7 @@ pip install numpy xarray pandas matplotlib geopandas argparse pathlib
 ### Optional Arguments
 | Argument | Default | Description | Typical Value | 
 |----------|---------|-------------|---------------|
+| `--file_pattern` | {}.nc | Input nc file (model forecast) name | default file name example: 2019.nc |
 | `--tolerance_days` | 3 | Tolerance in days for onset prediction | 3 for 1-15 day; 5 for 16-30 day forecast |
 | `--verification_window` | 1 | Days after initialization to start validation window | 1 for 1-15 day; 16 for 16-30 day forecast |
 | `--forecast_days` | 15 | Length of forecast window in days | 15 for 1-15 day; 30 for 16-30 day forecast |
@@ -136,6 +137,7 @@ python mae_far_mr_deterministic_models.py \
     --model_forecast_dir ../../model_forecast_data/aifs/daily_0z/tp_2p0_lsm \
     --imd_folder ../../imd_rainfall_data/2p0 \
     --thres_file ../../imd_onset_threshold/mwset2x2.nc4 \
+    --file_pattern {}.nc \
     --shpfile_path ../../ind_map_shpfile/india_shapefile.shp \
     --tolerance_days 3 \
     --verification_window 1 \
@@ -152,6 +154,7 @@ python mae_far_mr_deterministic_models.py \
     --model_forecast_dir ../../model_forecast_data/aifs/daily_0z/tp_2p0_lsm \
     --imd_folder ../../imd_rainfall_data/2p0 \
     --thres_file ../../imd_onset_threshold/mwset2x2.nc4 \
+    --file_pattern {}.nc \
     --shpfile_path ../../ind_map_shpfile/india_shapefile.shp \
     --tolerance_days 5 \
     --verification_window 16 \

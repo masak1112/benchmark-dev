@@ -20,7 +20,7 @@ from matplotlib.path import Path
 import matplotlib.patches as patches
 import geopandas as gpd
 
-def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir):
+def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, file_pattern='{}.nc'):
     """
     Loads model precip data for twice-weekly initializations from May to July.
     Filters for Mondays and Thursdays in the specified year.
@@ -33,7 +33,7 @@ def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir):
     Returns:
     p_model: ndarray, precipitation data 
     """
-    fname = f'{yr}.nc'
+    fname = file_pattern.format(yr)
     file_path = os.path.join(model_forecast_dir, fname)
         
     if not os.path.exists(file_path):
@@ -489,7 +489,7 @@ def compute_onset_metrics_with_windows(onset_df, tolerance_days=3, verification_
     
     return metrics_df, summary_stats
 
-def compute_metrics_multiple_years(years, model_forecast_dir, imd_folder, thres_file, 
+def compute_metrics_multiple_years(years, model_forecast_dir, imd_folder, thres_file, file_pattern='{}.nc',
                                  tolerance_days=3, verification_window=1, forecast_days=15, 
                                  max_forecast_day=15, mok=True):
     """Compute onset metrics for multiple years."""
@@ -504,7 +504,7 @@ def compute_metrics_multiple_years(years, model_forecast_dir, imd_folder, thres_
         print(f"Processing year {year}")
         print(f"{'='*50}")
         
-        p_model = get_forecast_probabilistic_twice_weekly(year, model_forecast_dir)
+        p_model = get_forecast_probabilistic_twice_weekly(year, model_forecast_dir, file_pattern)
         imd = load_imd_rainfall(year, imd_folder)
         onset_da = detect_observed_onset(imd, thres_da, year, mok=mok)
         
@@ -958,6 +958,8 @@ def main():
                         help='Directory containing IMD rainfall data')
     parser.add_argument('--thres_file', type=str, required=True,
                         help='Path to threshold NetCDF file')
+    parser.add_argument('--file_pattern', type=str, default='{}.nc',
+                        help='File pattern for forecast data (default: {}.nc)')    
     parser.add_argument('--shpfile_path', type=str, required=True,
                         help='Path to India shapefile')
     parser.add_argument('--tolerance_days', type=int, default=3,
@@ -1000,7 +1002,8 @@ def main():
         verification_window=args.verification_window, 
         forecast_days=args.forecast_days,
         max_forecast_day=args.max_forecast_day, 
-        mok=args.mok
+        mok=args.mok,
+        file_pattern=args.file_pattern
     )
     
     # Create spatial metrics
