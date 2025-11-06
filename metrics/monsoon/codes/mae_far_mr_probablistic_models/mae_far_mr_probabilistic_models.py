@@ -76,7 +76,7 @@ def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, file_pattern
             ds = ds.sel(step=slice(1, None)) 
     if 'day' in ds.dims:        
         ds = ds.rename({'day': 'step'})
-    
+    ds = ds.isel(member =slice(0, 51))  # limit to first 51 members (0-50) [for isel upper bound is exclusive]
     p_model = ds['tp']  # in mm    
     ds.close()
     return p_model
@@ -365,7 +365,7 @@ def compute_mean_onset_for_all_members(p_model, thresh_slice, onset_da, max_fore
     print(f"Ensemble onset rate: {ensemble_onsets_found/valid_inits:.3f}" if valid_inits > 0 else "Ensemble onset rate: 0.000")
     
     if mok:
-        print(f"Note: Only onsets on or after June 2nd were counted due to MOK flag")
+        print(f"Note: Only onsets after June 2nd were counted due to MOK flag")
     
     return onset_df
 

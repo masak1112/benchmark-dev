@@ -1,0 +1,7 @@
+**/output/
+.vscode/
+*.ipynb
+*.nc
+*.png
+*.csv
+*.pdf

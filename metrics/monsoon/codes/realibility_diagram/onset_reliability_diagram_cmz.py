@@ -68,7 +68,7 @@ def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, file_pattern
     if 'day' in ds.dims:        
         ds = ds.rename({'day': 'step'})
 
-    ds = ds.sel(member =slice(1, 51))  # limit to first 51 members (0-50)
+    ds = ds.isel(member =slice(0, 51))  # limit to first 51 members (0-50)
     p_model = ds['tp']  # in mm
     ds.close()
     return p_model
