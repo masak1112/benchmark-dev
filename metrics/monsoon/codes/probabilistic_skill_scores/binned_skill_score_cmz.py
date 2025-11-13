@@ -22,7 +22,7 @@ import glob
 
 
 
-def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, date_filter_year = 2024, file_pattern='tp_4p0_{}.nc'):
+def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, mem_num, date_filter_year = 2024, file_pattern='tp_4p0_{}.nc'):
     """
     Loads model precip data for twice-weekly initializations from May to July.
     """
@@ -61,6 +61,9 @@ def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, date_filter_
         
     # Select only the matching initialization times
     ds = ds.sel(init_time=matching_times)
+    if "total_precipitation_24hr" in ds.data_vars:
+        ds = ds.rename({"total_precipitation_24hr": "tp"}) # For the quantile-mapped variable change the var name from total_precipitation_24hr to tp
+
     if 'day' in ds.dims:
         if ds['day'][0].values == 0:
             ds = ds.sel(day=slice(1, None))
@@ -72,7 +75,7 @@ def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, date_filter_
     if 'day' in ds.dims:        
         ds = ds.rename({'day': 'step'})
 
-    ds = ds.isel(member =slice(0, 51))  # limit to first 51 members (0-50)
+    ds = ds.isel(member =slice(0, mem_num))  # limit to first mem_num members (0-mem_num)
     p_model = ds['tp']  # in mm
     init_times = p_model.init_time.values
     ds.close()
@@ -558,7 +561,7 @@ def multi_year_forecast_obs_pairs(years, model_forecast_dir, imd_folder, thres_f
         try:
             # Load model and observation data
             print("Loading S2S model data...")
-            p_model,_ = get_forecast_probabilistic_twice_weekly(year, model_forecast_dir, date_filter_year, file_pattern)
+            p_model,_ = get_forecast_probabilistic_twice_weekly(year, model_forecast_dir, mem_num, date_filter_year, file_pattern)
             p_model_slice = p_model.sel(lat=inside_lats, lon=inside_lons)
 
             print("Loading IMD rainfall data...")
@@ -1269,7 +1272,7 @@ def multi_year_climatological_forecast_obs_pairs(clim_onset, target_years, day_b
         
         try:
             # Get initialization dates for this year
-            _,init_dates = get_forecast_probabilistic_twice_weekly(target_year, model_forecast_dir, date_filter_year, file_pattern)
+            _,init_dates = get_forecast_probabilistic_twice_weekly(target_year, model_forecast_dir, mem_num, date_filter_year, file_pattern)
             
             
             # Create forecast-observation pairs for this year
@@ -1667,6 +1670,8 @@ def parse_arguments():
                         help='Directory containing IMD rainfall data')
     parser.add_argument('--thres_file', type=str, required=True,
                         help='Path to threshold NetCDF file')
+    parser.add_argument('--mem_num', type=int, required=True,
+                        help='Number of ensemble members to use')
     parser.add_argument('--date_filter_year', type=int, default=2024,
                         help='Year to use for date filtering (default: 2024)')
     parser.add_argument('--file_pattern', type=str, default='{}.nc',

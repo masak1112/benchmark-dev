@@ -20,7 +20,7 @@ from matplotlib.path import Path
 import matplotlib.patches as patches
 import geopandas as gpd
 
-def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, file_pattern='{}.nc'):
+def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, mem_num, file_pattern='{}.nc'):
     """
     Loads model precip data for twice-weekly initializations from May to July.
     Filters for Mondays and Thursdays in the specified year.
@@ -52,6 +52,8 @@ def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, file_pattern
         
     # Load data using xarray
     ds = xr.open_dataset(file_path)
+    if "total_precipitation_24hr" in ds.data_vars:
+        ds = ds.rename({"total_precipitation_24hr": "tp"}) # For the quantile-mapped variable change the var name from total_precipitation_24hr to tp
     if 'time' in ds.dims:
         ds = ds.rename({'time': 'init_time'})
     if 'number' in ds.dims:
@@ -76,7 +78,7 @@ def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, file_pattern
             ds = ds.sel(step=slice(1, None)) 
     if 'day' in ds.dims:        
         ds = ds.rename({'day': 'step'})
-    ds = ds.isel(member =slice(0, 51))  # limit to first 51 members (0-50) [for isel upper bound is exclusive]
+    ds = ds.isel(member =slice(0, mem_num))  # limit to first mem_num members (0-mem_num) [for isel upper bound is exclusive]
     p_model = ds['tp']  # in mm    
     ds.close()
     return p_model
@@ -504,7 +506,7 @@ def compute_metrics_multiple_years(years, model_forecast_dir, imd_folder, thres_
         print(f"Processing year {year}")
         print(f"{'='*50}")
         
-        p_model = get_forecast_probabilistic_twice_weekly(year, model_forecast_dir, file_pattern)
+        p_model = get_forecast_probabilistic_twice_weekly(year, model_forecast_dir, mem_num, file_pattern)
         imd = load_imd_rainfall(year, imd_folder)
         onset_da = detect_observed_onset(imd, thres_da, year, mok=mok)
         
@@ -954,6 +956,8 @@ def main():
                         help='Years to process (e.g., 2019 2020 2021)')
     parser.add_argument('--model_forecast_dir', type=str, required=True,
                         help='Directory containing S2S model data')
+    parser.add_argument('--mem_num', type=int, required=True,
+                        help='Number of ensemble members to use')
     parser.add_argument('--imd_folder', type=str, required=True,
                         help='Directory containing IMD rainfall data')
     parser.add_argument('--thres_file', type=str, required=True,
