@@ -54,10 +54,13 @@ def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, mem_num, fil
     ds = xr.open_dataset(file_path)
     if "total_precipitation_24hr" in ds.data_vars:
         ds = ds.rename({"total_precipitation_24hr": "tp"}) # For the quantile-mapped variable change the var name from total_precipitation_24hr to tp
+        ds = ds[['tp']]*1000
     if 'time' in ds.dims:
         ds = ds.rename({'time': 'init_time'})
     if 'number' in ds.dims:
         ds = ds.rename({'number': 'member'})
+    if 'sample' in ds.dims:
+        ds = ds.rename({'sample': 'member'})
     # Find common dates between desired dates and available dates
     available_init_times = pd.to_datetime(ds.init_time.values)
     matching_times = available_init_times[available_init_times.isin(filtered_dates_yr)]
@@ -491,7 +494,7 @@ def compute_onset_metrics_with_windows(onset_df, tolerance_days=3, verification_
     
     return metrics_df, summary_stats
 
-def compute_metrics_multiple_years(years, model_forecast_dir, imd_folder, thres_file, file_pattern='{}.nc',
+def compute_metrics_multiple_years(years, model_forecast_dir, imd_folder, thres_file, mem_num, file_pattern='{}.nc',
                                  tolerance_days=3, verification_window=1, forecast_days=15, 
                                  max_forecast_day=15, mok=True):
     """Compute onset metrics for multiple years."""
@@ -1002,7 +1005,8 @@ def main():
     # Compute metrics for multiple years
     metrics_df_dict, onset_da_dict = compute_metrics_multiple_years(
         args.years, args.model_forecast_dir, args.imd_folder, args.thres_file,
-        tolerance_days=args.tolerance_days, 
+        tolerance_days=args.tolerance_days,
+        mem_num=args.mem_num, 
         verification_window=args.verification_window, 
         forecast_days=args.forecast_days,
         max_forecast_day=args.max_forecast_day, 
