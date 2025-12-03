@@ -43,7 +43,7 @@ def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, mem_num, fil
     ds = xr.open_dataset(file_path)
     if "total_precipitation_24hr" in ds.data_vars:
         ds = ds.rename({"total_precipitation_24hr": "tp"}) # For the quantile-mapped variable change the var name from total_precipitation_24hr to tp
-
+        ds = ds[['tp']]*1000  # Convert from m to mm
     if 'time' in ds.dims:
         ds = ds.rename({'time': 'init_time'})
     if 'number' in ds.dims:
@@ -374,7 +374,7 @@ def points_inside_polygon(polygon_lon, polygon_lat, grid_lons, grid_lats):
     
     return inside_mask, inside_lons, inside_lats
 
-def multi_year_reliability_analysis(years, model_forecast_dir, imd_folder, thres_file, max_forecast_day, day_bins, mok=True, file_pattern='{}.nc'):
+def multi_year_reliability_analysis(years, model_forecast_dir, imd_folder, thres_file, mem_num, max_forecast_day, day_bins, mok=True, file_pattern='{}.nc'):
     """Main function to perform multi-year reliability analysis."""
     
     print(f"Processing years: {years}")
@@ -588,7 +588,8 @@ def main():
         args.years, 
         args.model_forecast_dir, 
         args.imd_folder, 
-        args.thres_file, 
+        args.thres_file,
+        args.mem_num, 
         args.max_forecast_day, 
         day_bins, 
         mok=args.mok,

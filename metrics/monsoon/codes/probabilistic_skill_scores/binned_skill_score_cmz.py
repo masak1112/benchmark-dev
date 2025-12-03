@@ -63,7 +63,7 @@ def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, mem_num, dat
     ds = ds.sel(init_time=matching_times)
     if "total_precipitation_24hr" in ds.data_vars:
         ds = ds.rename({"total_precipitation_24hr": "tp"}) # For the quantile-mapped variable change the var name from total_precipitation_24hr to tp
-
+        ds = ds[['tp']]*1000  # Convert from m to mm
     if 'day' in ds.dims:
         if ds['day'][0].values == 0:
             ds = ds.sel(day=slice(1, None))
@@ -521,7 +521,7 @@ def create_forecast_observation_pairs_with_bins(onset_all_members, onset_da, day
     return forecast_obs_df
 
 # This function creates the observed forecast pairs for multiple years (core monsoon zone grids) and combines them
-def multi_year_forecast_obs_pairs(years, model_forecast_dir, imd_folder, thres_file, max_forecast_day, day_bins, mok=True, date_filter_year=2024, file_pattern = '{}.nc'):
+def multi_year_forecast_obs_pairs(years, model_forecast_dir, imd_folder, thres_file, mem_num, max_forecast_day, day_bins, mok=True, date_filter_year=2024, file_pattern = '{}.nc'):
     """Main function to perform multi-year reliability analysis."""
     
     print(f"Processing years: {years}")
@@ -1220,7 +1220,7 @@ def create_climatological_forecast_obs_pairs(clim_onset, target_year, init_dates
     
     return forecast_obs_df
 
-def multi_year_climatological_forecast_obs_pairs(clim_onset, target_years, day_bins, model_forecast_dir, date_filter_year=2024, file_pattern='tp_4p0_{}.nc', max_forecast_day=15, mok=True):
+def multi_year_climatological_forecast_obs_pairs(clim_onset, target_years, day_bins, mem_num, model_forecast_dir, date_filter_year=2024, file_pattern='tp_4p0_{}.nc', max_forecast_day=15, mok=True):
     """
     Create climatological forecast-observation pairs for multiple target years.
     
@@ -1847,7 +1847,7 @@ def main():
     # Process forecast model
     print("\n1. Processing forecast model...")
     forecast_obs_df = multi_year_forecast_obs_pairs(
-        args.years, args.model_forecast_dir, args.imd_folder, args.thres_file, 
+        args.years, args.model_forecast_dir, args.imd_folder, args.thres_file, args.mem_num,
         args.max_forecast_day, day_bins, 
         date_filter_year=args.date_filter_year, 
         file_pattern=args.file_pattern,
@@ -1869,7 +1869,7 @@ def main():
     
     print("\n4. Processing climatological forecasts...")
     climatology_obs_df = multi_year_climatological_forecast_obs_pairs(
-        clim_onset, args.years, day_bins, args.model_forecast_dir, 
+        clim_onset, args.years, day_bins, args.mem_num, args.model_forecast_dir, 
         date_filter_year=args.date_filter_year, 
         file_pattern=args.file_pattern, 
         max_forecast_day=args.max_forecast_day, 
