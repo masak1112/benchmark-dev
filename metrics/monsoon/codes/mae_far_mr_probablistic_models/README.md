@@ -47,11 +47,13 @@ pip install numpy xarray pandas matplotlib geopandas argparse pathlib
 | `--model_forecast_dir` | Directory containing model forecast data  files in the right format (should have the same resolution as IMD data)|
 | `--imd_folder` | Directory containing IMD rainfall data files|
 | `--thres_file` | Path to threshold NetCDF file (should have the same resolution as IMD data)|
+| `--mem_num` | Number of ensemble members to be used (should be less than or equal to the total number of memebers avaialbe in the forecast) |
 | `--shpfile_path` | Path to India shapefile |
 
 ### Optional Arguments
 | Argument | Default | Description | Typical Value | 
 |----------|---------|-------------|---------------|
+| `--file_pattern` | {}.nc | Input nc file (model forecast) name | default file name example: 2019.nc |
 | `--tolerance_days` | 3 | Tolerance in days for onset prediction | 3 for 1-15 day; 5 for 16-30 day forecast |
 | `--verification_window` | 1 | Days after initialization to start validation window | 1 for 1-15 day; 16 for 16-30 day forecast |
 | `--forecast_days` | 15 | Length of forecast window in days | 15 for 1-15 day; 30 for 16-30 day forecast |
@@ -68,7 +70,7 @@ pip install numpy xarray pandas matplotlib geopandas argparse pathlib
 - **First Day Condition**: Rainfall > 1 mm on the first day
 - **5-Day Sum Condition**: Total rainfall over 5 consecutive days > threshold
 - **MOK Filter** (optional, this is a modification to avoid false early onset that are followed by dry spell): Only count onsets occurring on or after June 2nd
-- **Ensemble handling**: TOnset forecast of each ensemble member for a given initialization is examined for onset. If onset is detected for 50% or more members, the mean onset date of all the members is considrered as the onset for that initialization. If less than 50% of the members detect onset, the forecast is considrered to have no onset.
+- **Ensemble handling**: Forecast of each ensemble member for a given initialization is examined for onset. If onset is detected for 50% or more members, the mean onset date of all the members is considrered as the onset for that initialization. If less than 50% of the members detect onset, the forecast is considrered to have no onset.
 ### Verification Windows
 - **1-15 Day Window**: Extended-range forecasing window
   - `--verification_window 1 --forecast_days 15 --tolerance_days 3`
@@ -136,10 +138,13 @@ python mae_far_mr_probabilistic_models.py \
     --model_forecast_dir ../../model_forecast_data/ngcm51/climatology/tp_2p0 \
     --imd_folder ../../imd_rainfall_data/2p0 \
     --thres_file ../../imd_onset_threshold/mwset2x2.nc4 \
+    --mem_num 51 \
+    --file_pattern '{}.nc' \
     --shpfile_path ../../ind_map_shpfile/india_shapefile.shp \
     --tolerance_days 3 \
     --verification_window 1 \
     --forecast_days 15 \
+    --max_forecast_day 15 \
     --mok \
     --output_file ./output/results_1-15day_MOK.nc \
     --plot_dir ./output/plots
@@ -152,10 +157,13 @@ python mae_far_mr_probabilistic_models.py \
     --model_forecast_dir ../../model_forecast_data/ngcm51/climatology/tp_2p0 \
     --imd_folder ../../imd_rainfall_data/2p0 \
     --thres_file ../../imd_onset_threshold/mwset2x2.nc4 \
+    --mem_num 51 \
+    --file_pattern '{}.nc' \
     --shpfile_path ../../ind_map_shpfile/india_shapefile.shp \
     --tolerance_days 5 \
     --verification_window 16 \
     --forecast_days 30 \
+    --max_forecast_day 15 \
     --mok \
     --output_file ./output/results_16-30day_MOK.nc \
     --plot_dir /output/plots
@@ -168,10 +176,12 @@ python mae_far_mr_probabilistic_models.py \
     --model_forecast_dir ../../model_forecast_data/ngcm51/climatology/tp_2p0 \
     --imd_folder ../../imd_rainfall_data/2p0 \
     --thres_file ../../imd_onset_threshold/mwset2x2.nc4 \
+    --mem_num 51 \
     --shpfile_path ../../ind_map_shpfile/india_shapefile.shp \
     --tolerance_days 3 \
     --verification_window 1 \
     --forecast_days 15 \
+    --max_forecast_day 15 \
     --output_file ./output/results_1-15day_noMOK.nc
 ```
 

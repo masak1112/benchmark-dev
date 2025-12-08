@@ -39,10 +39,11 @@ python onset_reliability_diagram_cmz.py \
     --model_forecast_dir "../../model_forecast_data/ngcm51/climatology/tp_2p0" \
     --imd_folder "../../imd_rainfall_data/2p0" \
     --thres_file "../../imd_onset_threshold/mwset2x2.nc4" \
+    --mem_num 51\
     --max_forecast_day 15 \
     --save_path "./output" \
     --years 2019 2020 2021 2022 2023 2024 \
-    --file_pattern "tp_2p0_{}.nc" \
+    --file_pattern "{}.nc" \
     --mok
 
 # Without MOK filter
@@ -50,10 +51,11 @@ python onset_reliability_diagram_cmz.py \
     --model_forecast_dir "../../model_forecast_data/ngcm51/climatology/tp_2p0" \
     --imd_folder "../../imd_rainfall_data/2p0" \
     --thres_file "../../imd_onset_threshold/mwset2x2.nc4" \
+    --mem_num 51 \
     --max_forecast_day 15 \
     --save_path "./output" \
     --years 2019 2020 2021 2022 2023 2024 \
-    --file_pattern "tp_2p0_{}.nc" \
+    --file_pattern "{}.nc" \
     --no-mok
 ```
 
@@ -64,9 +66,10 @@ python onset_reliability_diagram_cmz.py \
 | `--model_forecast_dir` | str | Yes | - | Directory containing model forecast data files  |
 | `--imd_folder` | str | Yes | - | Directory containing IMD rainfall NetCDF files |
 | `--thres_file` | str | Yes | - | Path to monsoon onset threshold NetCDF file |
-| `--max_forecast_day` | int | No | 15 | Maximum forecast day (15 or 30) |
+| `--mem_num` | int | Yes | - |  Number of ensemble members to be used (should be less than or equal to the total number of memebers avaialbe in the forecast) |
 | `--save_path` | str | Yes | - | Output directory for results and figures |
 | `--years` | list | Yes | - | Years to process (space-separated integers) |
+| `--max_forecast_day` | int | No | 15 | Maximum forecast day (15 for 1-15 day forecast realiability or 30 for 16-30 day forecast reliability) |
 | `--file_pattern` | str | No | `{}.nc` | File naming pattern for forecast files (single file for each year) |
 | `--mok` | flag | No | True | Enable MOK filter (onset after June 2nd only) |
 | `--no-mok` | flag | No | False | Disable MOK filter (allow onset from May 1st) |
