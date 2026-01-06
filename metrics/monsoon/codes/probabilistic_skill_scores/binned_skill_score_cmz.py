@@ -1680,6 +1680,8 @@ def parse_arguments():
                         help='Maximum forecast day (15 or 30, default: 30)')
     parser.add_argument('--model_name', type=str, required=True,
                         help='Model name for output files (e.g., gencast, fuxi)')
+    parser.add_argument('--save_dir', type=str, default=None,
+                        help='Directory to save output CSV and PNG files (default: current directory)')
     parser.add_argument('--mok', action='store_true', default=True,
                         help='Use MOK date filter (June 2nd) for onset detection (default: True)')
     parser.add_argument('--no_mok', action='store_false', dest='mok',
@@ -1712,8 +1714,45 @@ def get_target_bins(brier_forecast, brier_climatology):
     return sorted(target_bins, key=extract_day_range)
 
 def save_results(auc_forecast, brier_forecast, skill_results, rps_forecast,
-                auc_climatology, brier_climatology, model_name, max_forecast_day):
-    """Save overall and binned skill scores to CSV files"""
+                auc_climatology, brier_climatology, model_name, max_forecast_day, save_dir=None):
+    """
+    Save overall and binned skill scores to CSV files
+    
+    Parameters:
+    -----------
+    auc_forecast : dict
+        AUC results for forecast model
+    brier_forecast : dict
+        Brier score results for forecast model
+    skill_results : dict
+        Skill score results
+    rps_forecast : dict
+        RPS results for forecast model
+    auc_climatology : dict
+        AUC results for climatology
+    brier_climatology : dict
+        Brier score results for climatology
+    model_name : str
+        Name of the model for output filenames
+    max_forecast_day : int
+        Maximum forecast day (15 or 30)
+    save_dir : str, optional
+        Directory to save CSV files. If None, saves in current directory.
+        If directory doesn't exist, it will be created.
+    """
+    
+    # Handle save directory
+    if save_dir is not None:
+        # Create directory if it doesn't exist
+        os.makedirs(save_dir, exist_ok=True)
+        print(f"Results will be saved in: {save_dir}")
+        
+        # Ensure save_dir ends with a path separator for proper joining
+        if not save_dir.endswith(os.sep):
+            save_dir += os.sep
+    else:
+        save_dir = ""
+        print("Results will be saved in current directory")
     
     # Save overall scores
     overall_scores = {
@@ -1728,7 +1767,7 @@ def save_results(auc_forecast, brier_forecast, skill_results, rps_forecast,
     }
     
     overall_df = pd.DataFrame(overall_scores)
-    overall_filename = f'overall_skill_scores_{model_name}_{max_forecast_day}day.csv'
+    overall_filename = f'{save_dir}overall_skill_scores_{model_name}_{max_forecast_day}day.csv'
     overall_df.to_csv(overall_filename, index=False)
     print(f"Saved overall scores to '{overall_filename}'")
     print(overall_df)
@@ -1746,14 +1785,36 @@ def save_results(auc_forecast, brier_forecast, skill_results, rps_forecast,
     }
     
     binned_df = pd.DataFrame(binned_data)
-    binned_filename = f'binned_skill_scores_{model_name}_{max_forecast_day}day.csv'
+    binned_filename = f'{save_dir}binned_skill_scores_{model_name}_{max_forecast_day}day.csv'
     binned_df.to_csv(binned_filename, index=False)
     print(f"Saved binned scores to '{binned_filename}'")
     print(binned_df)
+    
+    return overall_filename, binned_filename
 
 def create_heatmap(skill_results, auc_forecast, auc_climatology, 
-                  brier_forecast, brier_climatology, model_name, max_forecast_day):
-    """Create and save skill score heatmap"""
+                  brier_forecast, brier_climatology, model_name, max_forecast_day, save_dir=None):
+    """
+    Create and save skill score heatmap
+    
+    Parameters:
+    -----------
+    ... (other parameters)
+    save_dir : str, optional
+        Directory to save the heatmap. If None, saves in current directory.
+        If directory doesn't exist, it will be created.
+    """
+    
+    # Handle save directory
+    if save_dir is not None:
+        # Create directory if it doesn't exist
+        os.makedirs(save_dir, exist_ok=True)
+        
+        # Ensure save_dir ends with a path separator for proper joining
+        if not save_dir.endswith(os.sep):
+            save_dir += os.sep
+    else:
+        save_dir = ""
     
     target_bins = get_target_bins(brier_forecast, brier_climatology)
     
@@ -1816,11 +1877,13 @@ def create_heatmap(skill_results, auc_forecast, auc_climatology,
     plt.tight_layout()
     
     # Save with model name and forecast days
-    figure_filename = f'skill_scores_heatmap_{model_name}_{max_forecast_day}day.png'
+    figure_filename = f'{save_dir}skill_scores_heatmap_{model_name}_{max_forecast_day}day.png'
     plt.savefig(figure_filename, dpi=300, bbox_inches='tight')
     plt.close()
     
     print(f"Figure saved as '{figure_filename}'")
+    
+    return figure_filename
 
 def main():
     """Main execution function"""
@@ -1842,6 +1905,10 @@ def main():
     print(f"Max forecast day: {args.max_forecast_day}")
     print(f"Day bins: {day_bins}")
     print(f"MOK filter: {args.mok} ({'June 2nd' if args.mok else 'May 1st'})")
+    if args.save_dir:
+        print(f"Output directory: {args.save_dir}")
+    else:
+        print("Output directory: current directory")
     print("="*60)
     
     # Process forecast model
@@ -1851,7 +1918,7 @@ def main():
         args.max_forecast_day, day_bins, 
         date_filter_year=args.date_filter_year, 
         file_pattern=args.file_pattern,
-        mok=args.mok  # Pass mok parameter
+        mok=args.mok
     )
     
     print("\n2. Calculating forecast scores...")
@@ -1864,7 +1931,7 @@ def main():
     thresh_ds = xr.open_dataset(args.thres_file)
     thresh_slice = thresh_ds['MWmean']
     clim_onset = compute_climatological_onset_dataset(
-        args.imd_folder, thresh_slice, years=None, mok=args.mok  # Pass mok parameter
+        args.imd_folder, thresh_slice, years=None, mok=args.mok
     )
     
     print("\n4. Processing climatological forecasts...")
@@ -1873,7 +1940,7 @@ def main():
         date_filter_year=args.date_filter_year, 
         file_pattern=args.file_pattern, 
         max_forecast_day=args.max_forecast_day, 
-        mok=args.mok  # Pass mok parameter
+        mok=args.mok
     )
     
     print("\n5. Calculating climatology scores...")
@@ -1890,25 +1957,27 @@ def main():
     
     # Save results
     print("\n7. Saving results...")
-    save_results(
+    overall_file, binned_file = save_results(
         auc_forecast, brier_forecast, skill_results, rps_forecast,
-        auc_climatology, brier_climatology, args.model_name, args.max_forecast_day
+        auc_climatology, brier_climatology, args.model_name, args.max_forecast_day,
+        save_dir=args.save_dir
     )
     
     # Create heatmap
     print("\n8. Creating heatmap...")
-    create_heatmap(
+    heatmap_file = create_heatmap(
         skill_results, auc_forecast, auc_climatology,
-        brier_forecast, brier_climatology, args.model_name, args.max_forecast_day
+        brier_forecast, brier_climatology, args.model_name, args.max_forecast_day,
+        save_dir=args.save_dir
     )
     
     print("\n" + "="*60)
     print("ANALYSIS COMPLETED SUCCESSFULLY!")
     print("="*60)
     print("Output files:")
-    print(f"- overall_skill_scores_{args.model_name}_{args.max_forecast_day}day.csv")
-    print(f"- binned_skill_scores_{args.model_name}_{args.max_forecast_day}day.csv")
-    print(f"- skill_scores_heatmap_{args.model_name}_{args.max_forecast_day}day.png")
+    print(f"- {overall_file}")
+    print(f"- {binned_file}")
+    print(f"- {heatmap_file}")
 
 if __name__ == "__main__":
     main()
