@@ -13,7 +13,7 @@ import sys
 # USER CONFIG
 # ============================================================
 
-BASE_DIR = "/glade/derecho/scratch/bgong/amip_s2s_ensembles"
+BASE_DIR = "/glade/derecho/scratch/bgong/amip_s2s_train_scratch"
 
 GRID_FILE = "/glade/work/rajatm/benchmark-dev/metrics/monsoon/grid_2deg_india.txt"
 
@@ -23,7 +23,7 @@ N_SEEDS = 13
 
 TEMP_DIR = "./temp_regrid_parallel"
 
-OUT_DIR = "/glade/work/rajatm/benchmark-dev/metrics/monsoon/data_files/regrid_out/amip_clim"
+OUT_DIR = "/glade/work/rajatm/benchmark-dev/metrics/monsoon/data_files/regrid_out/amip_s2s_train_scratch"
 
 
 # ============================================================

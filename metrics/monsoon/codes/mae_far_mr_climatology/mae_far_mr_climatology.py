@@ -262,14 +262,14 @@ def compute_climatological_onset(imd_folder, thres_file, mok=True):
     
     return climatological_onset_doy
 
-def get_initialization_dates(year):
+def get_initialization_dates(year, date_filter_year=2024):
     """
     Get initialization dates (Mondays and Thursdays from May-July) for a given year.
     Uses the same logic as get_s2s_deterministic_twice_weekly but only returns dates.
     """
     # Define date range from May 1 to July 31 of 2024 (template)
-    start_date = datetime(2024, 5, 1)
-    end_date = datetime(2024, 7, 31)
+    start_date = datetime(date_filter_year, 5, 1)
+    end_date = datetime(date_filter_year, 7, 31)
     date_range = pd.date_range(start_date, end_date, freq='D')
     
     # Find Mondays (weekday=0) and Thursdays (weekday=3)
@@ -582,7 +582,7 @@ def compute_climatology_metrics_with_windows(climatology_forecast_df, observed_o
     
     return metrics_df, summary_stats
 
-def compute_climatology_baseline_multiple_years(years, imd_folder, thres_file,
+def compute_climatology_baseline_multiple_years(years, imd_folder, thres_file, date_filter_year=2024,
                                               tolerance_days=3, verification_window=1, forecast_days=15,
                                               max_forecast_day=15, mok=True):
     """
@@ -610,7 +610,7 @@ def compute_climatology_baseline_multiple_years(years, imd_folder, thres_file,
         print(f"{'='*50}")
         
         # Get initialization dates for this year (same as model would use)
-        init_dates = get_initialization_dates(year)
+        init_dates = get_initialization_dates(year, date_filter_year)
         
         # Load observed data for this year
         imd = load_imd_rainfall(year, imd_folder)
@@ -1141,6 +1141,8 @@ def main():
                         help='Path to threshold NetCDF file')
     parser.add_argument('--shpfile_path', type=str, required=True,
                         help='Path to India shapefile')
+    parser.add_argument('--date_filter_year', type=int, default=2024,
+                        help='Year to use for date filtering (default: 2024)')   
     parser.add_argument('--tolerance_days', type=int, default=5,
                         help='Tolerance in days for onset prediction (default: 5)')
     parser.add_argument('--verification_window', type=int, default=16,
@@ -1175,7 +1177,8 @@ def main():
     
     # Compute climatology baseline metrics for multiple years
     metrics_df_dict, climatological_onset_doy = compute_climatology_baseline_multiple_years(
-        args.years, args.imd_folder, args.thres_file,
+        args.years, args.imd_folder, args.thres_file, 
+        date_filter_year=args.date_filter_year,
         tolerance_days=args.tolerance_days, 
         verification_window=args.verification_window, 
         forecast_days=args.forecast_days,

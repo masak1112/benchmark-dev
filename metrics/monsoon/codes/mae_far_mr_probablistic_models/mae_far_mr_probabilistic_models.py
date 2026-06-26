@@ -20,18 +20,9 @@ from matplotlib.path import Path
 import matplotlib.patches as patches
 import geopandas as gpd
 
-def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, mem_num, file_pattern='{}.nc'):
+def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, mem_num, date_filter_year = 2024, file_pattern='tp_4p0_{}.nc'):
     """
     Loads model precip data for twice-weekly initializations from May to July.
-    Filters for Mondays and Thursdays in the specified year.
-    The forecast file is expected to be named as '{year}.nc' in the model_forecast_dir with 
-    variable "tp" being daily accumulated rainfall with dimensions (init_time, lat, lon, step, member).
-
-    Parameters:
-    yr: int, year to load data for
-    
-    Returns:
-    p_model: ndarray, precipitation data 
     """
     fname = file_pattern.format(yr)
     file_path = os.path.join(model_forecast_dir, fname)
@@ -40,8 +31,8 @@ def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, mem_num, fil
         raise FileNotFoundError(f"File not found: {file_path}")
         
     # Filter for twice weekly data from daily for the specified year
-    start_date = datetime(2024, 5, 1)
-    end_date = datetime(2024, 7, 31)
+    start_date = datetime(date_filter_year, 5, 1)
+    end_date = datetime(date_filter_year, 7, 31)
     date_range = pd.date_range(start_date, end_date, freq='D')
         
     # Find Mondays and Thursdays
@@ -52,15 +43,13 @@ def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, mem_num, fil
         
     # Load data using xarray
     ds = xr.open_dataset(file_path)
-    if "total_precipitation_24hr" in ds.data_vars:
-        ds = ds.rename({"total_precipitation_24hr": "tp"}) # For the quantile-mapped variable change the var name from total_precipitation_24hr to tp
-        ds = ds[['tp']]*1000
     if 'time' in ds.dims:
         ds = ds.rename({'time': 'init_time'})
     if 'number' in ds.dims:
         ds = ds.rename({'number': 'member'})
     if 'sample' in ds.dims:
         ds = ds.rename({'sample': 'member'})
+    
     # Find common dates between desired dates and available dates
     available_init_times = pd.to_datetime(ds.init_time.values)
     matching_times = available_init_times[available_init_times.isin(filtered_dates_yr)]
@@ -70,21 +59,25 @@ def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, mem_num, fil
         
     # Select only the matching initialization times
     ds = ds.sel(init_time=matching_times)
+    if "total_precipitation_24hr" in ds.data_vars:
+        ds = ds.rename({"total_precipitation_24hr": "tp"}) # For the quantile-mapped variable change the var name from total_precipitation_24hr to tp
+        ds = ds[['tp']]*1000  # Convert from m to mm
     if 'day' in ds.dims:
-        # Check if the first value of 'day' is 0, then slice to exclude it
         if ds['day'][0].values == 0:
             ds = ds.sel(day=slice(1, None))
-    # Check if 'step' dimension exists and conditionally slice
+    
     if 'step' in ds.dims:
-        # Check if the first value of 'step' is 0, then slice to exclude it
         if ds['step'][0].values == 0:
             ds = ds.sel(step=slice(1, None)) 
+    
     if 'day' in ds.dims:        
         ds = ds.rename({'day': 'step'})
-    ds = ds.isel(member =slice(0, mem_num))  # limit to first mem_num members (0-mem_num) [for isel upper bound is exclusive]
-    p_model = ds['tp']  # in mm    
+
+    ds = ds.isel(member =slice(0, mem_num))  # limit to first mem_num members (0-mem_num)
+    p_model = ds['tp']  # in mm
+    init_times = p_model.init_time.values
     ds.close()
-    return p_model
+    return p_model, init_times
 
 def load_imd_rainfall(year, imd_folder):
     """Load IMD daily rainfall NetCDF for a given year."""
@@ -375,7 +368,7 @@ def compute_mean_onset_for_all_members(p_model, thresh_slice, onset_da, max_fore
     return onset_df
 
 def compute_onset_metrics_with_windows(onset_df, tolerance_days=3, verification_window=1, forecast_days=15):
-    """Compute contingency matrix metrics following MATLAB logic with forecast and validation windows."""
+    """Compute contingency matrix metrics with forecast and validation windows."""
     print(f"Computing onset metrics with tolerance = {tolerance_days} days")
     print(f"Verification window starts {verification_window} days after initialization")
     print(f"Forecast window length: {forecast_days} days")
@@ -494,7 +487,7 @@ def compute_onset_metrics_with_windows(onset_df, tolerance_days=3, verification_
     
     return metrics_df, summary_stats
 
-def compute_metrics_multiple_years(years, model_forecast_dir, imd_folder, thres_file, mem_num, file_pattern='{}.nc',
+def compute_metrics_multiple_years(years, model_forecast_dir, imd_folder, thres_file, mem_num, date_filter_year=2024, file_pattern='{}.nc',
                                  tolerance_days=3, verification_window=1, forecast_days=15, 
                                  max_forecast_day=15, mok=True):
     """Compute onset metrics for multiple years."""
@@ -509,7 +502,7 @@ def compute_metrics_multiple_years(years, model_forecast_dir, imd_folder, thres_
         print(f"Processing year {year}")
         print(f"{'='*50}")
         
-        p_model = get_forecast_probabilistic_twice_weekly(year, model_forecast_dir, mem_num, file_pattern)
+        p_model,_ = get_forecast_probabilistic_twice_weekly(year, model_forecast_dir, mem_num, date_filter_year, file_pattern)
         imd = load_imd_rainfall(year, imd_folder)
         onset_da = detect_observed_onset(imd, thres_da, year, mok=mok)
         
@@ -969,6 +962,8 @@ def main():
                         help='File pattern for forecast data (default: {}.nc)')    
     parser.add_argument('--shpfile_path', type=str, required=True,
                         help='Path to India shapefile')
+    parser.add_argument('--date_filter_year', type=int, default=2024,
+                        help='Year to use for date filtering (default: 2024)')    
     parser.add_argument('--tolerance_days', type=int, default=3,
                         help='Tolerance in days for onset prediction (default: 3)')
     parser.add_argument('--verification_window', type=int, default=1,
@@ -1004,9 +999,9 @@ def main():
     
     # Compute metrics for multiple years
     metrics_df_dict, onset_da_dict = compute_metrics_multiple_years(
-        args.years, args.model_forecast_dir, args.imd_folder, args.thres_file,
-        tolerance_days=args.tolerance_days,
-        mem_num=args.mem_num, 
+        args.years, args.model_forecast_dir, args.imd_folder, args.thres_file, 
+        mem_num=args.mem_num, date_filter_year=args.date_filter_year,
+        tolerance_days=args.tolerance_days, 
         verification_window=args.verification_window, 
         forecast_days=args.forecast_days,
         max_forecast_day=args.max_forecast_day, 

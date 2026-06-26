@@ -1756,9 +1756,10 @@ def save_results(auc_forecast, brier_forecast, skill_results, rps_forecast,
     
     # Save overall scores
     overall_scores = {
-        'Metric': ['AUC', 'Fair Brier Score', 'Fair Brier Skill Score', 'Fair RPS', 'Fair RPS Skill Score'],
+        'Metric': ['AUC','AUC_Climatology' ,'Fair Brier Score', 'Fair Brier Skill Score', 'Fair RPS', 'Fair RPS Skill Score'],
         'Score': [
             auc_forecast['auc'],
+            auc_climatology['auc'],
             brier_forecast['fair_brier_score'],
             skill_results['fair_brier_skill_score'],
             rps_forecast['fair_rps'],
@@ -1780,6 +1781,7 @@ def save_results(auc_forecast, brier_forecast, skill_results, rps_forecast,
         'Bin': target_bins,
         'Fair_Brier_Skill_Score': [skill_results['bin_fair_brier_skill_scores'].get(bin_name, np.nan) for bin_name in target_bins],
         'AUC': [auc_forecast['bin_auc_scores'].get(bin_name, np.nan) for bin_name in target_bins],
+        'AUC_Climatology': [auc_climatology['bin_auc_scores'].get(bin_name, np.nan) for bin_name in target_bins],
         'Fair_Brier_Score_Forecast': [brier_forecast['bin_fair_brier_scores'].get(bin_name, np.nan) for bin_name in target_bins],
         'Fair_Brier_Score_Climatology': [brier_climatology['bin_fair_brier_scores'].get(bin_name, np.nan) for bin_name in target_bins]
     }

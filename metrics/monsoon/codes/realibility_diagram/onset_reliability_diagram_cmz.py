@@ -18,7 +18,7 @@ from matplotlib.path import Path as MplPath
 import argparse
 
 
-def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, mem_num, file_pattern = '{}.nc'):
+def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, mem_num, date_filter_year = 2024, file_pattern='tp_4p0_{}.nc'):
     """
     Loads model precip data for twice-weekly initializations from May to July.
     """
@@ -29,8 +29,8 @@ def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, mem_num, fil
         raise FileNotFoundError(f"File not found: {file_path}")
         
     # Filter for twice weekly data from daily for the specified year
-    start_date = datetime(2024, 5, 1)
-    end_date = datetime(2024, 7, 31)
+    start_date = datetime(date_filter_year, 5, 1)
+    end_date = datetime(date_filter_year, 7, 31)
     date_range = pd.date_range(start_date, end_date, freq='D')
         
     # Find Mondays and Thursdays
@@ -41,9 +41,6 @@ def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, mem_num, fil
         
     # Load data using xarray
     ds = xr.open_dataset(file_path)
-    if "total_precipitation_24hr" in ds.data_vars:
-        ds = ds.rename({"total_precipitation_24hr": "tp"}) # For the quantile-mapped variable change the var name from total_precipitation_24hr to tp
-        ds = ds[['tp']]*1000  # Convert from m to mm
     if 'time' in ds.dims:
         ds = ds.rename({'time': 'init_time'})
     if 'number' in ds.dims:
@@ -60,6 +57,9 @@ def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, mem_num, fil
         
     # Select only the matching initialization times
     ds = ds.sel(init_time=matching_times)
+    if "total_precipitation_24hr" in ds.data_vars:
+        ds = ds.rename({"total_precipitation_24hr": "tp"}) # For the quantile-mapped variable change the var name from total_precipitation_24hr to tp
+        ds = ds[['tp']]*1000  # Convert from m to mm
     if 'day' in ds.dims:
         if ds['day'][0].values == 0:
             ds = ds.sel(day=slice(1, None))
@@ -73,8 +73,9 @@ def get_forecast_probabilistic_twice_weekly(yr, model_forecast_dir, mem_num, fil
 
     ds = ds.isel(member =slice(0, mem_num))  # limit to first mem_num members (0-mem_num)
     p_model = ds['tp']  # in mm
+    init_times = p_model.init_time.values
     ds.close()
-    return p_model
+    return p_model, init_times
 
 def load_imd_rainfall(year, imd_folder):
     """Load IMD daily rainfall NetCDF for a given year."""
@@ -374,7 +375,7 @@ def points_inside_polygon(polygon_lon, polygon_lat, grid_lons, grid_lats):
     
     return inside_mask, inside_lons, inside_lats
 
-def multi_year_reliability_analysis(years, model_forecast_dir, imd_folder, thres_file, mem_num, max_forecast_day, day_bins, mok=True, file_pattern='{}.nc'):
+def multi_year_reliability_analysis(years, model_forecast_dir, imd_folder, thres_file, mem_num, max_forecast_day, day_bins, mok=True, date_filter_year=2024, file_pattern='{}.nc'):
     """Main function to perform multi-year reliability analysis."""
     
     print(f"Processing years: {years}")
@@ -411,7 +412,7 @@ def multi_year_reliability_analysis(years, model_forecast_dir, imd_folder, thres
         
         try:
             print("Loading model forecast data...")
-            p_model = get_forecast_probabilistic_twice_weekly(year, model_forecast_dir, mem_num, file_pattern)
+            p_model,_ = get_forecast_probabilistic_twice_weekly(year, model_forecast_dir, mem_num, date_filter_year, file_pattern)
             p_model_slice = p_model.sel(lat=inside_lats, lon=inside_lons)
 
             print("Loading IMD rainfall data...")
@@ -555,6 +556,8 @@ def main():
     parser.add_argument('--model_forecast_dir', required=True, help='Directory containing model forecast data')
     parser.add_argument('--imd_folder', required=True, help='Directory containing IMD rainfall data')
     parser.add_argument('--mem_num', type=int, required=True, help='Number of ensemble members to use')
+    parser.add_argument('--date_filter_year', type=int, default=2024,
+                        help='Year to use for date filtering (default: 2024)')
     parser.add_argument('--thres_file', required=True, help='Path to threshold NetCDF file')
     parser.add_argument('--max_forecast_day', type=int, default=15, help='Maximum forecast day (default: 15)')
     parser.add_argument('--save_path', required=True, help='Directory to save outputs')
@@ -591,7 +594,8 @@ def main():
         args.thres_file,
         args.mem_num, 
         args.max_forecast_day, 
-        day_bins, 
+        day_bins,
+        date_filter_year=args.date_filter_year, 
         mok=args.mok,
         file_pattern=args.file_pattern
     )

@@ -308,7 +308,7 @@ def compute_onset_for_deterministic_model(p_model, thresh_slice, onset_da, max_f
     return onset_df
 
 def compute_onset_metrics_with_windows(onset_df, tolerance_days=3, verification_window=1, forecast_days=15):
-    """Compute contingency matrix metrics following MATLAB logic with forecast and validation windows."""
+    """Compute contingency matrix metrics with forecast and validation windows."""
     print(f"Computing onset metrics with tolerance = {tolerance_days} days")
     print(f"Verification window starts {verification_window} days after initialization")
     print(f"Forecast window length: {forecast_days} days")
