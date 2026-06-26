@@ -1,2 +1,7 @@
 metrics/MJO/cal_pc/
 metrics/monsoon/jupyter_notebooks/merged_precip_2019.nc
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
