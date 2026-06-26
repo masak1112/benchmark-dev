@@ -348,7 +348,7 @@ def process_year(year, input_dir, output_dir, target_grid_file, months, file_pat
     # Step 2: Merge regridded files
     print(f"\n📊 Step 2: Merging regridded files")
     output_filename = output_filename_template.format(year=year)
-    output_file = os.path.join(year_output_dir, output_filename)
+    output_file = os.path.join(output_dir, output_filename)
     
     merge_regridded_files(
         input_dir=year_output_dir,
