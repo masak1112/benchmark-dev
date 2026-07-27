@@ -12,68 +12,29 @@ output:
   parent_dir: /glade/work/bgong/gencast_neuralGCM_crps_ssr/gencast_neuralGCM_crps_ssr
 
 compute:
-  max_members: 50           # cap ensemble size per init date; null = use all
+  max_members: 20           # cap ensemble size per init date; null = use all
 
 # ── Model definitions ────────────────────────────────────────────────────────
 models:
 
-  amip_s2s_ensembles:
-    input_dir: /glade/derecho/scratch/bgong/amip_s2s_ensembles
-    format: format_a
-    years: [2019, 2020, 2021, 2022]
-    variables:
-      2m_temperature:
-        model_var: 2m_temperature
-        era5_var: 2m_temperature
-      geopotential_500:
-        model_var: geopotential
-        era5_var: geopotential
-        level: 500.0
-        level_dim: plev       # pressure-level coord name inside model files
-      sea_surface_temperature:
-        model_var: skin_temperature
-        era5_var: sea_surface_temperature
-      total_precipitation_24hr:
-        model_var: PRATEsfc_24h
-        era5_var: total_precipitation_24hr
-        model_scale: 86400.0  # kg/m²/s × 86400 → mm/day
-        era5_scale: 1000.0    # m/day  × 1000   → mm/day
-
-  amip_s2s_train_scratch:
-    input_dir: /glade/derecho/scratch/bgong/amip_s2s_train_scratch
-    format: format_a
-    years: [2019, 2020, 2021, 2022]
-    variables:
-      2m_temperature:
-        model_var: 2m_temperature
-        era5_var: 2m_temperature
-      geopotential_500:
-        model_var: geopotential
-        era5_var: geopotential
-        level: 500.0
-        level_dim: plev
-      sea_surface_temperature:
-        model_var: skin_temperature
-        era5_var: sea_surface_temperature
-      total_precipitation_24hr:
-        model_var: PRATEsfc_24h
-        era5_var: total_precipitation_24hr
-        model_scale: 86400.0
-        era5_scale: 1000.0
-
-  ours_si:
-    input_dir: /glade/derecho/scratch/bgong/ours_si
+  our_si_latent_tendency_dropout:
+    input_dir: /glade/derecho/scratch/bgong/our_si_latent_tendency_dropout
+    #input_dir: /glade/derecho/scratch/bgong/amip_s2s_train_scratch_small_samples
     format: format_b
-    years: [2020]
+    years: [2019]
     variables:
       2m_temperature:
         model_var: 2m_temperature
         era5_var: 2m_temperature
-      geopotential_500:
-        model_var: geopotential
-        era5_var: geopotential
-        level: 500.0
-        level_dim: level      # Format B uses 'level' (not 'plev')
-      sea_surface_temperature:
-        model_var: sea_surface_temperature
-        era5_var: sea_surface_temperature
+      # geopotential_500:
+      #   model_var: geopotential
+      #   era5_var: geopotential
+      #   level: 500.0
+      #   level_dim: plev       # pressure-level coord name inside model files
+      total_precipitation_24hr:
+        model_var: total_precipitation_24hr
+        era5_var: total_precipitation_24hr
+        # model_scale: 86400.0
+        # era5_scale: 1000.0
+
+

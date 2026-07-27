@@ -93,6 +93,14 @@ def load_forecast(
             date_da = xr.concat(seed_das, dim="number")
             if max_members is not None:
                 date_da = date_da.isel(number=slice(max_members))
+            # Reassign a plain per-date positional index. The seed-derived IDs
+            # (seed * n_mem + i) are only unique within a date; dates with a
+            # different number/order of seed files (e.g. a missing seed file)
+            # end up with different ID subsets. Concatenating across `time`
+            # with mismatched `number` coordinates triggers an outer join that
+            # fills most cells with NaN, which poisons CRPS (computed with
+            # skipna=False on the member dim).
+            date_da = date_da.assign_coords(number=np.arange(date_da.sizes["number"]))
             all_date_das.append(date_da)
 
     if not all_date_das:

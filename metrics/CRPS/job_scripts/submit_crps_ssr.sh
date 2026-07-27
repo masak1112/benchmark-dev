@@ -4,7 +4,7 @@
 # Usage:
 #   qsub submit_crps_ssr.sh                             # all models, all vars
 #   qsub -v MODEL=ours_si submit_crps_ssr.sh            # single model, all vars
-#   qsub -v MODEL=ours_si,VAR=2m_temperature submit_crps_ssr.sh
+#   qsub -v MODEL=our_si_latent_tendency_dropout,VAR=2m_temperature submit_crps_ssr.sh
 #
 # Override job name at submission:
 #   qsub -N my_job_name submit_crps_ssr.sh
@@ -54,3 +54,5 @@ else
 fi
 
 exit $EXIT_CODE
+
+
