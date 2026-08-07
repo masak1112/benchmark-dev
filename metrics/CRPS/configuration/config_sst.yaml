@@ -1,0 +1,21 @@
+era5:
+  dir: /data/era5_gt
+  file_pattern: "{variable}/{year}_180x360.nc"
+  level_dim: level
+
+output:
+  parent_dir: /data/bing/crps_ssr
+
+compute:
+  max_members: 40
+
+models:
+
+  finetune_rollout_crps:
+    input_dir: /data/bing/S2S/v2.0/HPC_scripts/results/S2S/finetune_rollout_crps/predictions
+    format: format_b
+    years: [2019, 2020]
+    variables:
+      sea_surface_temperature:
+        model_var: sea_surface_temperature
+        era5_var: sea_surface_temperature
