@@ -17,24 +17,124 @@ compute:
 # ── Model definitions ────────────────────────────────────────────────────────
 models:
 
-  our_si_latent_tendency_dropout:
-    input_dir: /glade/derecho/scratch/bgong/our_si_latent_tendency_dropout
-    #input_dir: /glade/derecho/scratch/bgong/amip_s2s_train_scratch_small_samples
-    format: format_b
-    years: [2019]
+  amip_s2s_ensembles:
+    input_dir: /glade/derecho/scratch/bgong/amip_s2s_ensembles
+    format: format_a
+    years: [2019, 2020, 2021, 2022]
     variables:
       2m_temperature:
         model_var: 2m_temperature
         era5_var: 2m_temperature
-      # geopotential_500:
-      #   model_var: geopotential
-      #   era5_var: geopotential
-      #   level: 500.0
-      #   level_dim: plev       # pressure-level coord name inside model files
+      geopotential_500:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 50000.0        # amip plev coord is in Pa; 50000 Pa = 500 hPa
+        era5_level: 500.0     # ERA5 level coord is in hPa
+        level_dim: plev       # pressure-level coord name inside model files
+      sea_surface_temperature:
+        model_var: skin_temperature
+        era5_var: sea_surface_temperature
+      total_precipitation_24hr:
+        model_var: PRATEsfc_24h
+        era5_var: total_precipitation_24hr
+        model_scale: 86400.0  # kg/m²/s × 86400 → mm/day
+        era5_scale: 1000.0    # m/day  × 1000   → mm/day
+
+
+
+
+  amip_s2s_train_scratch:
+    input_dir: /glade/derecho/scratch/bgong/amip_s2s_train_scratch
+    format: format_a
+    years: [2019, 2020, 2021, 2022]
+    variables:
+      2m_temperature:
+        model_var: 2m_temperature
+        era5_var: 2m_temperature
+      geopotential_500:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 50000.0        # amip plev coord is in Pa; 50000 Pa = 500 hPa
+        era5_level: 500.0     # ERA5 level coord is in hPa
+        level_dim: plev       # pressure-level coord name inside model files
+      sea_surface_temperature:
+        model_var: skin_temperature
+        era5_var: sea_surface_temperature
+      total_precipitation_24hr:
+        model_var: PRATEsfc_24h
+        era5_var: total_precipitation_24hr
+        model_scale: 86400.0  # kg/m²/s × 86400 → mm/day
+        era5_scale: 1000.0    # m/day  × 1000   → mm/day
+
+
+  era5_climatology:
+    # ERA5 reanalysis years 1979-2021 used as ensemble members (climatological baseline)
+    input_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+    format: format_era5_clim
+    years: [2019, 2020, 2021]
+    variables:
+      2m_temperature:
+        model_var: 2m_temperature
+        era5_var: 2m_temperature
+        clim_years: [1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988,
+                     1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
+                     1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+                     2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+                     2019, 2020, 2021]
+        lead_days: 46
+        init_date_ref_dirs:
+          - /glade/derecho/scratch/bgong/amip_s2s_ensembles
+      geopotential_500:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 500.0              # level coord in newdata files is in hPa
+        level_dim: level
+        era5_var: geopotential
+        era5_level: 500.0
+        clim_years: [1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988,
+                     1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
+                     1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+                     2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+                     2019, 2020, 2021]
+        lead_days: 46
+        init_date_ref_dirs:
+          - /glade/derecho/scratch/bgong/amip_s2s_ensembles
       total_precipitation_24hr:
         model_var: total_precipitation_24hr
         era5_var: total_precipitation_24hr
-        # model_scale: 86400.0
-        # era5_scale: 1000.0
+        model_scale: 1000.0       # m/day × 1000 → mm/day
+        era5_scale: 1000.0        # m/day × 1000 → mm/day
+        clim_years: [1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988,
+                     1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
+                     1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+                     2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+                     2019, 2020, 2021]
+        lead_days: 46
+        init_date_ref_dirs:
+          - /glade/derecho/scratch/bgong/amip_s2s_ensembles
 
+  ours_si_postprocess_v2:
+    input_dir: /glade/derecho/scratch/bgong/ours_si_postprocess_v2/predictions
+    format: format_b
+    years: [2019, 2020, 2021]
+    variables:
+      sea_surface_temperature:
+        model_var: sea_surface_temperature
+        era5_var: sea_surface_temperature
+
+  fuxi_s2s:
+    input_dir: /glade/derecho/scratch/bgong/fuxi_s2s
+    format: format_fuxi
+    years: [2019, 2020, 2021]
+    variables:
+      2m_temperature:
+        model_var: t2m
+        era5_var: 2m_temperature
+      geopotential_500:
+        model_var: z500
+        era5_var: geopotential
+        era5_level: 500.0     # ERA5 level coord is in hPa
+      sea_surface_temperature:
+        model_var: sst
+        era5_var: sea_surface_temperature
 

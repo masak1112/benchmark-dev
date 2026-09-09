@@ -28,7 +28,7 @@ models:
       geopotential_500:
         model_var: geopotential
         era5_var: geopotential
-        level: 500.0
+        level: 50000.0  
         level_dim: plev       # pressure-level coord name inside model files
       sea_surface_temperature:
         model_var: skin_temperature

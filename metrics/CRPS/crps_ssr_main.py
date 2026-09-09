@@ -131,7 +131,7 @@ def evaluate_crps_fast(
 
 def load_era5(era5_cfg: dict, years: list, var_cfg: dict) -> xr.Dataset:
     era5_var       = var_cfg["era5_var"]
-    level          = var_cfg.get("level")
+    level          = var_cfg.get("era5_level", var_cfg.get("level"))
     era5_level_dim = era5_cfg.get("level_dim", "level")
     era5_scale     = var_cfg.get("era5_scale", 1.0)
     pattern        = era5_cfg["file_pattern"]
@@ -199,6 +199,44 @@ def evaluate_variable(
 
     print("Loading ERA5 analysis ...")
     analysis = load_era5(era5_cfg, years, var_cfg)
+
+    # ── SST spurious-point mask ───────────────────────────────────────────────
+    # Exclude: ERA5 NaN (land), ERA5 < 271.15 K (sea ice), ensemble ≤ 271.15 K
+    # (coastal fill values where land-sea mask differs from ERA5).
+    if era5_var == "sea_surface_temperature":
+        SST_THRESH = 271.15
+        era5_da = analysis[era5_var]  # (time, lat, lon)
+        fc_da   = forecast[era5_var]  # (time, number, prediction_timedelta, lat, lon)
+
+        # build mask: True = keep, False = spurious/ice/land
+        era5_ok  = (~np.isnan(era5_da)) & (era5_da >= SST_THRESH)
+        # ensemble min across members — exclude if ANY member has fill value
+        ens_min  = fc_da.min(dim="number")  # (time, prediction_timedelta, lat, lon)
+        ens_ok   = ens_min >= SST_THRESH
+
+        # align ERA5 time axis to valid times of forecast
+        valid_times = (
+            forecast["time"] + forecast["prediction_timedelta"]
+        )  # (time, prediction_timedelta)
+        era5_ok_sel = era5_ok.sel(time=valid_times)  # (time, prediction_timedelta, lat, lon)
+
+        keep = era5_ok_sel & ens_ok  # (time, prediction_timedelta, lat, lon)
+
+        # apply: set masked points to NaN in both forecast and analysis
+        forecast[era5_var] = fc_da.where(keep)
+        # align era5 for analysis masking
+        analysis_aligned = analysis[era5_var].sel(time=valid_times)
+        # We patch analysis inside evaluate_crps_fast by masking the forecast;
+        # also mask ERA5 by rebuilding analysis with NaN where excluded.
+        # Simplest: mask analysis using same keep mask
+        analysis[era5_var] = analysis[era5_var].where(
+            era5_ok  # (time, lat, lon) — NaN land/ice points
+        )
+
+        n_kept  = int(keep.sum().values)
+        n_total = int(keep.size)
+        print(f"  SST mask: {n_kept}/{n_total} points kept "
+              f"({100*n_kept/n_total:.1f}%)")
 
     print("Computing CRPS & SSR ...")
     res = evaluate_crps_fast(

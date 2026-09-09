@@ -7,11 +7,13 @@ Each loader module must expose:
 To add a new format, create loaders/format_X.py and add its key here.
 """
 
-from . import format_a, format_b
+from . import format_a, format_b, format_fuxi, format_era5_clim
 
 LOADERS = {
     "format_a": format_a,
     "format_b": format_b,
+    "format_fuxi": format_fuxi,
+    "format_era5_clim": format_era5_clim,
 }
 
 
