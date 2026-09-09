@@ -25,6 +25,7 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 import yaml
+from scipy.ndimage import binary_dilation
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -101,6 +102,20 @@ def evaluate_crps_fast(
     for coord in ("lat", "lon"):
         if coord in f.coords and coord in t.coords:
             t = t.assign_coords({coord: f.coords[coord]})
+
+    # Build a static open-ocean mask: land (always-NaN in ERA5) dilated by 1
+    # pixel to also exclude coastline cells where model fill values contaminate
+    # the ensemble spread. Applied to both forecast and analysis so that spread
+    # and error share identical spatial support.
+    land_2d = np.all(np.isnan(t.values), axis=tuple(
+        i for i, d in enumerate(t.dims) if d not in ("lat", "lon")
+    ))
+    exclude_2d = binary_dilation(land_2d, iterations=1)
+    open_ocean = xr.DataArray(~exclude_2d, dims=["lat", "lon"], coords={
+        "lat": t["lat"], "lon": t["lon"],
+    })
+    f = f.where(open_ocean)
+    t = t.where(open_ocean)
 
     crps      = _crps_ensemble_vec(t, f, mdim)
     crps.name = "crps"

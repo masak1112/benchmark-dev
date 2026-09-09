@@ -1,0 +1,45 @@
+# CRPS/SSR evaluation configuration
+# Add a new model by adding an entry under `models:`.
+# Set `format` to an existing loader key (format_a or format_b).
+# No changes to crps_ssr_main.py are needed.
+
+era5:
+  dir: /data/era5_gt
+  file_pattern: "{variable}/{year}_180x360.nc"
+  level_dim: level          # coordinate name for pressure level in ERA5 files
+
+output:
+  parent_dir: /data/bing/crps_ssr
+
+compute:
+  max_members: 40           # cap ensemble size per init date; null = use all
+
+# ── Model definitions ────────────────────────────────────────────────────────
+models:
+
+  finetune_rollout_crps:
+    input_dir: /data/bing/S2S/v2.0/HPC_scripts/results/S2S/finetune_rollout_crps/predictions
+    #input_dir: /glade/derecho/scratch/bgong/amip_s2s_train_scratch_small_samples
+    format: format_b
+    years: [2019]
+    variables:
+      2m_temperature:
+        model_var: 2m_temperature
+        era5_var: 2m_temperature
+      geopotential_500:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 500.0
+        level_dim: level      # pressure-level coord name inside model files
+      total_precipitation_24hr:
+        model_var: total_precipitation_24hr
+        era5_var: total_precipitation_24hr
+      # temperature_850:
+      #   model_var: temperature
+      #   era5_var: temperature
+      #   level: 850.0
+      #   level_dim: level    
+        # model_scale: 86400.0
+        # era5_scale: 1000.0
+
+
