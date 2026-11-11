@@ -1,0 +1,29 @@
+#!/bin/bash
+#PBS -N ngcm_miss_new
+#PBS -A UCHI0018
+#PBS -q develop
+#PBS -l walltime=06:00:00
+#PBS -l select=1:ncpus=1:mem=64GB
+#PBS -o /glade/work/bgong/MJO_results/logs/ngcm_missing_new.out
+#PBS -e /glade/work/bgong/MJO_results/logs/ngcm_missing_new.err
+#PBS -j oe
+
+source /etc/profile.d/modules.sh
+module load conda
+conda activate /glade/work/bgong/mjocast_env
+
+cd /glade/work/bgong/MJO_modular
+
+DATES=$(awk '{printf "--date %s ", $1}' run_scripts/ngcm_missing_new.txt)
+
+echo "=== NGCM: step2 for 176 missing dates ==="
+echo "Start: $(date)"
+python src/step2_prepare_forecasts.py --config config/pipeline_config.yaml \
+  --dataset ngcm_campaign $DATES
+
+echo "=== NGCM: step4 for 176 missing dates ==="
+python src/step4_run_forecasts.py --config config/pipeline_config.yaml \
+  --dataset ngcm_campaign $DATES
+
+echo "End: $(date)"
+echo "=== Done ==="

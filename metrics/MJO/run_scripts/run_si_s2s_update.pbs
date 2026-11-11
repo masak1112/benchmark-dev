@@ -1,0 +1,20 @@
+#!/bin/bash
+#PBS -A UCHI0014
+#PBS -q develop
+#PBS -l walltime=06:00:00
+#PBS -l select=1:ncpus=1:mem=128GB
+#PBS -j oe
+# usage: qsub -N si_upd -v DATES=run_scripts/<list>.txt -o <log> run_si_s2s_update.pbs
+# SI-S2S (amip_s2s) step2 + step4 for the dates in DATES; step4 serial (shared obs file).
+set -uo pipefail
+PY=/glade/work/bgong/mjocast_env/bin/python
+cd /glade/work/bgong/MJO_modular
+CFG=config/pipeline_config.yaml
+args=""; fail=0
+for D in $(cat ${DATES}); do
+  ${PY} src/step2_prepare_forecasts.py --config $CFG --dataset amip_s2s --date $D \
+    && args="$args --date $D" || { echo "STEP2 FAILED $D"; fail=1; }
+done
+[ -n "$args" ] && { ${PY} src/step4_run_forecasts.py --config $CFG --dataset amip_s2s $args || { echo "STEP4 FAILED"; fail=1; }; }
+echo "done $(date) fail=$fail"
+exit $fail

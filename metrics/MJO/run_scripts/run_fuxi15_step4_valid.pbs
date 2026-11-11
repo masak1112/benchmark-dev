@@ -1,0 +1,32 @@
+#!/bin/bash
+#PBS -N fuxi15_step4v
+#PBS -A UCHI0018
+#PBS -q develop
+#PBS -l walltime=04:00:00
+#PBS -l select=1:ncpus=1:mem=64GB
+#PBS -o /glade/work/bgong/MJO_results/logs/fuxi15_step4_valid.out
+#PBS -e /glade/work/bgong/MJO_results/logs/fuxi15_step4_valid.err
+#PBS -j oe
+
+source /etc/profile.d/modules.sh
+module load conda
+conda activate /glade/work/bgong/mjocast_env
+
+cd /glade/work/bgong/MJO_modular
+
+echo "=== Running step4 for fuxi_s2s_15 (valid dates only: 2002-Aug-Dec + 2017-Jan-Mar) ==="
+echo "Start: $(date)"
+
+python src/step4_run_forecasts.py --config config/pipeline_config.yaml --dataset fuxi_s2s_15 \
+  --date 20020829 --date 20020901 --date 20020905 --date 20020908 --date 20020912 \
+  --date 20020915 --date 20020919 --date 20020922 --date 20020926 --date 20020929 \
+  --date 20021003 --date 20021006 --date 20021010 --date 20021013 --date 20021017 \
+  --date 20021020 --date 20021024 --date 20021027 --date 20021103 --date 20021107 \
+  --date 20021110 --date 20021114 --date 20021117 --date 20021121 --date 20021124 \
+  --date 20021128 --date 20170103 --date 20170106 --date 20170110 --date 20170113 \
+  --date 20170117 --date 20170120 --date 20170124 --date 20170127 --date 20170131 \
+  --date 20170203 --date 20170207 --date 20170210 --date 20170214 --date 20170217 \
+  --date 20170221 --date 20170224 --date 20170228 --date 20170303
+
+echo "End: $(date)"
+echo "=== Done ==="

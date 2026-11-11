@@ -1,0 +1,30 @@
+#!/bin/bash
+#PBS -N ngcm_camp_mayjul
+#PBS -A UCHI0018
+#PBS -q develop
+#PBS -l walltime=06:00:00
+#PBS -l select=1:ncpus=1:mem=64GB
+#PBS -j oe
+#PBS -o /glade/work/bgong/MJO_results/logs/ngcm_camp_mayjul.log
+
+set -euo pipefail
+DATES_FILE=/glade/work/bgong/MJO_modular/run_scripts/ngcm_campaign_mayjul_todo.txt
+PY=/glade/work/bgong/mjocast_env/bin/python
+REPO=/glade/work/bgong/MJO_modular
+
+cd "${REPO}"
+echo "=== NGCM campaign May-Jul step2 ==="
+echo "Start: $(date)"
+
+while IFS= read -r date; do
+    [ -z "$date" ] && continue
+    echo "Processing $date ..."
+    ${PY} src/step2_prepare_forecasts.py --config config/pipeline_config.yaml \
+        --dataset ngcm_campaign --date "$date"
+done < "${DATES_FILE}"
+
+echo "=== Step4 ==="
+${PY} src/step4_run_forecasts.py --config config/pipeline_config.yaml \
+    --dataset ngcm_campaign
+
+echo "All done: $(date)"

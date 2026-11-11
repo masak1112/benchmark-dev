@@ -1,0 +1,62 @@
+# OLR-based (standard RMM) run for FuXi; derived from pipeline_config.yaml (variable: olr).
+variable: olr
+resolution: 1.0
+regrid_forecast: false
+obs:
+  era5_vp200_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata/velocity_potential_200
+  era5_h5_dir: /glade/campaign/univ/uchi0014/yqsun/v2.1_fixed/DATA3
+  era5_mjocast_obs_dir: /glade/work/bgong/MJO/MJOcast/MJOcast/Observations
+  base_obs_dir: /glade/work/bgong/MJO_results/obs
+  climo_start_year: 1979
+  climo_end_year: 2018
+  anomaly_start_year: 2002
+  lat_south: -15.0
+  lat_north: 15.0
+mjocast:
+  base_dir: /glade/work/bgong/MJO/MJOcast/MJOcast
+  user: bgong
+datasets:
+  fuxi_s2s:
+    enabled: true
+    loader: fuxi_s2s
+    src_dir: /glade/derecho/scratch/bgong/fuxi_s2s
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/fuxi_s2s
+    max_members: null
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/fuxi_olr_extract
+
+  ecmwf_s2s_olr:
+    enabled: true
+    loader: ecmwf_s2s_olr
+    src_dir: /glade/derecho/scratch/bgong/ec_s2s_hindcast_mjo
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/ecmwf_s2s_olr
+    max_members: null
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/ecmwf_olr_extract
+plots:
+  phase_space_months:
+  - '20190502'
+  - '20190509'
+  - '20190516'
+  - '20190523'
+  - '20190530'
+  - '20190606'
+  - '20190613'
+  - '20190620'
+  - '20190627'
+  - '20190704'
+  - '20190711'
+  - '20190718'
+  - '20190725'
+  - '20200502'
+  - '20200509'
+  - '20200516'
+  acc_plot_filename: bivariate_acc_comparison.png
+  plot_dir: /glade/campaign/univ/uchi0018/bing/mjo/plots
+conda_env: /glade/work/bgong/mjocast_env
+pbs:
+  account: UCHI0018
+  queue: develop
+  walltime_step2: 06:00:00
+  walltime_step45: 06:00:00
+  mem: 64GB
+  ncpus: 1
+  log_dir: /glade/work/bgong/MJO_results/logs

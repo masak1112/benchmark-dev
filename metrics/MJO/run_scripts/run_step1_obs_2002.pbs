@@ -1,0 +1,19 @@
+#!/bin/bash
+#PBS -N step1_obs_2002
+#PBS -A UCHI0018
+#PBS -q develop
+#PBS -l walltime=02:00:00
+#PBS -l select=1:ncpus=1:mem=64GB
+#PBS -o /glade/work/bgong/MJO_results/logs/step1_obs_2002.out
+#PBS -e /glade/work/bgong/MJO_results/logs/step1_obs_2002.err
+#PBS -j oe
+
+source /etc/profile.d/modules.sh
+module load conda
+conda activate /glade/work/bgong/mjocast_env
+
+cd /glade/work/bgong/MJO_modular
+
+echo "=== Rebuilding ERA5 chi200 obs from 2002 ==="
+python src/step1_build_obs.py --config config/pipeline_config.yaml
+echo "=== Done ==="

@@ -1,0 +1,56 @@
+#!/bin/bash
+#PBS -N mjo_step1_step45
+#PBS -q develop
+#PBS -l select=1:ncpus=4:mem=128GB
+#PBS -l walltime=06:00:00
+#PBS -j oe
+#PBS -A UCHI0018
+#PBS -m e
+#
+# Run step1 (build ERA5 obs), then step3 (EOFs), step4 (RMM projection), step5 (plots).
+# Submit after step2 array job is complete.
+
+set -euo pipefail
+
+REPO_ROOT=/glade/work/bgong/MJO_modular
+CONFIG=${CONFIG:-${REPO_ROOT}/config/pipeline_config.yaml}
+
+CONDA_ENV=$(python3 -c "
+import yaml
+c = yaml.safe_load(open('${CONFIG}'))
+print(c.get('conda_env', '/glade/work/bgong/mjocast_env'))
+" 2>/dev/null || echo "/glade/work/bgong/mjocast_env")
+PY="${CONDA_ENV}/bin/python"
+
+echo "=== Step 1 + Step 3 + Step 4 + Step 5 ==="
+echo "Host   : $(hostname)"
+echo "Config : ${CONFIG}"
+echo "Start  : $(date)"
+
+cd "${REPO_ROOT}"
+
+echo ""
+echo ">>> Step 1: Build ERA5 obs files (climo, anomaly, 120-day filter)"
+${PY} src/step1_build_obs.py --config "${CONFIG}"
+echo "Step 1 complete: $(date)"
+
+echo ""
+echo ">>> Step 3: Compute observed EOFs"
+${PY} src/step3_process_eofs.py --config "${CONFIG}"
+echo "Step 3 complete: $(date)"
+
+echo ""
+echo ">>> Step 4: Run MJOcast RMM projection"
+${PY} src/step4_run_forecasts.py --config "${CONFIG}"
+echo "Step 4 complete: $(date)"
+
+echo ""
+echo ">>> Step 5a: Bivariate ACC skill curve"
+${PY} src/step5_acc_plot.py --config "${CONFIG}"
+
+echo ""
+echo ">>> Step 5b: RMM phase space plots"
+${PY} src/step5_phase_space.py --config "${CONFIG}"
+
+echo ""
+echo "=== All steps complete: $(date) ==="
