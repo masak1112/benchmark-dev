@@ -1,0 +1,562 @@
+# CRPS/SSR evaluation configuration
+# Add a new model by adding an entry under `models:`.
+# Set `format` to an existing loader key (format_a or format_b).
+# No changes to crps_ssr_main.py are needed.
+
+era5:
+  dir: /glade/derecho/scratch/bgong/era5
+  file_pattern: "{variable}/{year}_180x360.nc"
+  level_dim: level          # coordinate name for pressure level in ERA5 files
+
+output:
+  parent_dir: /glade/work/bgong/gencast_neuralGCM_crps_ssr/gencast_neuralGCM_crps_ssr
+
+compute:
+  max_members: 20           # cap ensemble size per init date; null = use all
+
+# ── Model definitions ────────────────────────────────────────────────────────
+models:
+
+  amip_s2s_ensembles:
+    input_dir: /glade/derecho/scratch/bgong/amip_s2s_ensembles
+    format: format_a
+    years: [2019, 2020, 2021, 2022]
+    variables:
+      2m_temperature:
+        model_var: 2m_temperature
+        era5_var: 2m_temperature
+      geopotential_500:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 50000.0        # amip plev coord is in Pa; 50000 Pa = 500 hPa
+        era5_level: 500.0     # ERA5 level coord is in hPa
+        level_dim: plev       # pressure-level coord name inside model files
+      sea_surface_temperature:
+        model_var: skin_temperature
+        era5_var: sea_surface_temperature
+      total_precipitation_24hr:
+        model_var: PRATEsfc_24h
+        era5_var: total_precipitation_24hr
+        model_scale: 86400.0  # kg/m²/s × 86400 → mm/day
+        era5_scale: 1000.0    # m/day  × 1000   → mm/day
+
+
+
+
+  amip_s2s_train_scratch:
+    input_dir: /glade/derecho/scratch/bgong/amip_s2s_train_scratch
+    format: format_a
+    years: [2019, 2020, 2021, 2022]
+    variables:
+      2m_temperature:
+        model_var: 2m_temperature
+        era5_var: 2m_temperature
+      geopotential_500:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 50000.0        # amip plev coord is in Pa; 50000 Pa = 500 hPa
+        era5_level: 500.0     # ERA5 level coord is in hPa
+        level_dim: plev       # pressure-level coord name inside model files
+      geopotential_850:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 85000.0        # 85000 Pa = 850 hPa
+        era5_level: 850.0
+        level_dim: plev
+      temperature_850:
+        model_var: temperature
+        era5_var: temperature
+        level: 85000.0        # 85000 Pa = 850 hPa
+        era5_level: 850.0
+        level_dim: plev
+        # pressure-level temperature is not under the scratch ERA5 root
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      geopotential_250:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 25000.0        # 25000 Pa = 250 hPa
+        era5_level: 250.0
+        level_dim: plev
+        # scratch ERA5 geopotential lacks 250 hPa -> campaign archive
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      geopotential_200:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 20000.0        # 20000 Pa = 200 hPa
+        era5_level: 200.0
+        level_dim: plev
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      u_component_of_wind_500:
+        model_var: u_component_of_wind
+        era5_var: u_component_of_wind
+        level: 50000.0        # 50000 Pa = 500 hPa
+        era5_level: 500.0
+        level_dim: plev
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      specific_humidity_850:
+        # SI-S2S carries specific_TOTAL_water (incl. condensate), not specific
+        # humidity; magnitudes are close but it is not the identical quantity.
+        model_var: specific_total_water
+        era5_var: specific_humidity
+        level: 85000.0
+        era5_level: 850.0
+        level_dim: plev
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      10m_u_component_of_wind:
+        model_var: 10m_u_component_of_wind
+        era5_var: 10m_u_component_of_wind
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      sea_surface_temperature:
+        model_var: skin_temperature
+        era5_var: sea_surface_temperature
+      total_precipitation_24hr:
+        model_var: PRATEsfc_24h
+        era5_var: total_precipitation_24hr
+        model_scale: 86400.0  # kg/m²/s × 86400 → mm/day
+        era5_scale: 1000.0    # m/day  × 1000   → mm/day
+
+
+  era5_climatology:
+    # ERA5 reanalysis years 1979-2021 used as ensemble members (climatological baseline)
+    input_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+    format: format_era5_clim
+    years: [2019, 2020, 2021]
+    variables:
+      2m_temperature:
+        model_var: 2m_temperature
+        era5_var: 2m_temperature
+        clim_years: [1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988,
+                     1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
+                     1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+                     2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+                     2019, 2020, 2021]
+        lead_days: 46
+        init_date_ref_dirs:
+          - /glade/derecho/scratch/bgong/amip_s2s_train_scratch
+      geopotential_500:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 500.0              # level coord in newdata files is in hPa
+        level_dim: level
+        era5_var: geopotential
+        era5_level: 500.0
+        clim_years: [1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988,
+                     1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
+                     1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+                     2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+                     2019, 2020, 2021]
+        lead_days: 46
+        init_date_ref_dirs:
+          - /glade/derecho/scratch/bgong/amip_s2s_train_scratch
+      total_precipitation_24hr:
+        model_var: total_precipitation_24hr
+        era5_var: total_precipitation_24hr
+        model_scale: 1000.0       # m/day × 1000 → mm/day
+        era5_scale: 1000.0        # m/day × 1000 → mm/day
+        clim_years: [1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988,
+                     1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
+                     1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+                     2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+                     2019, 2020, 2021]
+        lead_days: 46
+        init_date_ref_dirs:
+          - /glade/derecho/scratch/bgong/amip_s2s_train_scratch
+      geopotential_850:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 850.0
+        level_dim: level
+        era5_level: 850.0
+        clim_years: [1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988,
+                     1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
+                     1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+                     2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+                     2019, 2020, 2021]
+        lead_days: 46
+        init_date_ref_dirs:
+          - /glade/derecho/scratch/bgong/amip_s2s_train_scratch
+      geopotential_250:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 250.0
+        level_dim: level
+        era5_level: 250.0
+        # scratch ERA5 geopotential has only 50/500/850 -> campaign (18 levels)
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+        clim_years: [1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988,
+                     1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
+                     1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+                     2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+                     2019, 2020, 2021]
+        lead_days: 46
+        init_date_ref_dirs:
+          - /glade/derecho/scratch/bgong/amip_s2s_train_scratch
+      temperature_850:
+        model_var: temperature
+        era5_var: temperature
+        level: 850.0
+        level_dim: level
+        era5_level: 850.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+        clim_years: [1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988,
+                     1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
+                     1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+                     2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018,
+                     2019, 2020, 2021]
+        lead_days: 46
+        init_date_ref_dirs:
+          - /glade/derecho/scratch/bgong/amip_s2s_train_scratch
+
+  gencast:
+    # GenCast zarr, one store per year. 52 members, 0.25 deg, May-Jul inits.
+    # NOTE: these stores contain NO geopotential, so z500/z850 are unavailable.
+    input_dir: /glade/campaign/univ/uchi0018/bing/gencast
+    format: format_gencast_zarr
+    years: [2019, 2020, 2021, 2022, 2023, 2024]
+    variables:
+      2m_temperature:
+        model_var: 2m_temperature
+        era5_var: 2m_temperature
+      temperature_850:
+        model_var: temperature
+        era5_var: temperature
+        level: 850.0          # gencast level coord is in hPa
+        era5_level: 850.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      u_component_of_wind_500:
+        model_var: u_component_of_wind
+        era5_var: u_component_of_wind
+        level: 500.0
+        era5_level: 500.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      specific_humidity_850:
+        model_var: specific_humidity
+        era5_var: specific_humidity
+        level: 850.0
+        era5_level: 850.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      sea_surface_temperature:
+        model_var: sea_surface_temperature
+        era5_var: sea_surface_temperature
+
+  ngcm:
+    # NeuralGCM campaign "climatology" zarr, one store per init date.
+    # 25 members, 2.8125 deg Gaussian, 2019-2021 only, ~6-day cadence.
+    # NOTE: no 2m_temperature in these stores. Pressure level is baked into
+    # the variable name, so model_var carries the full name.
+    input_dir: /glade/derecho/scratch/bgong/ngcm/climatology
+    format: format_ngcm_zarr
+    years: [2019, 2020, 2021]
+    variables:
+      geopotential_500:
+        model_var: geopotential_500_avg
+        era5_var: geopotential
+        era5_level: 500.0
+      geopotential_850:
+        model_var: geopotential_850_avg
+        era5_var: geopotential
+        era5_level: 850.0
+      temperature_850:
+        model_var: temperature_850_avg
+        era5_var: temperature
+        era5_level: 850.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      geopotential_200:
+        # NGCM has no 250 hPa field; 200 hPa is its nearest upper-level geopotential
+        model_var: geopotential_200_avg
+        era5_var: geopotential
+        era5_level: 200.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      u_component_of_wind_500:
+        model_var: u_component_of_wind_500_avg
+        era5_var: u_component_of_wind
+        era5_level: 500.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      specific_humidity_850:
+        model_var: specific_humidity_850_avg
+        era5_var: specific_humidity
+        era5_level: 850.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      total_precipitation_24hr:
+        model_var: total_precipitation_24hr
+        era5_var: total_precipitation_24hr
+        era5_scale: 1000.0       # ERA5 m/day -> mm/day
+
+  ecmwf_s2s:
+    # ECMWF S2S reforecast, GRIB, 50 perturbed members (control excluded),
+    # 1.5 deg regridded to ERA5 1.0 deg. 2019-2023 available.
+    # NOTE: ECMWF supplies geopotential HEIGHT in gpm; ERA5 stores GEOPOTENTIAL
+    # in m2 s-2, hence model_scale: 9.80665 on the gh-derived variables
+    # (verified: ERA5/ECMWF ratio of the 500 hPa global mean = 9.788 ~ g).
+    input_dir: /glade/derecho/scratch/bgong/ec_s2s_model_2025
+    format: format_ecmwf_grib
+    years: [2019, 2020, 2021]
+    variables:
+      2m_temperature:
+        grib_group: t2m
+        model_var: t2m
+        era5_var: 2m_temperature
+      geopotential_500:
+        grib_group: pl500_z_u
+        model_var: gh
+        era5_var: geopotential
+        era5_level: 500.0
+        model_scale: 9.80665    # gpm -> m2 s-2
+      u_component_of_wind_500:
+        grib_group: pl500_z_u
+        model_var: u
+        era5_var: u_component_of_wind
+        era5_level: 500.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      geopotential_850:
+        grib_group: pl850_z_t_q
+        model_var: gh
+        era5_var: geopotential
+        era5_level: 850.0
+        model_scale: 9.80665    # gpm -> m2 s-2
+      temperature_850:
+        grib_group: pl850_z_t_q
+        model_var: t
+        era5_var: temperature
+        era5_level: 850.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      specific_humidity_850:
+        grib_group: pl850_z_t_q
+        model_var: q
+        era5_var: specific_humidity
+        era5_level: 850.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+
+  ecmwf_hindcast:
+    # ECMWF S2S reforecast (hindcast). Each GRIB holds 3 init dates (the
+    # 2019/2020/2021 hindcast years for a 2025 model cycle); only 10 perturbed
+    # members, so histograms have 11 bins (RI is bin-count normalised).
+    # Groups available: t2m, pl500_z (geopotential only), tp, uv200_850 --
+    # there is NO pl850_z_t_q, so no 850 hPa fields.
+    input_dir: /glade/derecho/scratch/bgong/ec_s2s_model_2025_hindcast
+    format: format_ecmwf_hindcast
+    years: [2019, 2020, 2021]
+    variables:
+      2m_temperature:
+        grib_group: t2m
+        model_var: t2m
+        era5_var: 2m_temperature
+      geopotential_500:
+        grib_group: pl500_z
+        model_var: gh
+        era5_var: geopotential
+        era5_level: 500.0
+        model_scale: 9.80665     # gpm -> m2 s-2
+      total_precipitation_24hr:
+        grib_group: tp
+        model_var: tp
+        era5_var: total_precipitation_24hr
+        deaccumulate: true       # tp accumulates from init -> diff to daily
+        model_scale: 1.0         # kg m-2 per day == mm/day
+        era5_scale: 1000.0       # ERA5 m/day -> mm/day
+
+  ours_si_sstanom:
+    # UC-S2S SST-anomaly-conditioned run. 186 init dates 2019-01-03 .. 2022-04-28,
+    # 20 members, same format_b layout as ours_si_postprocess_v2_0903.
+    # NOTE: sea_surface_temperature is stored as a FULL FIELD (K), not an anomaly
+    # -- the "sstanom" tag refers to training/initialisation, not output units.
+    input_dir: /glade/derecho/scratch/bgong/pp_si_infer_sstanom/predictions
+    format: format_b
+    years: [2019, 2020, 2021, 2022]
+    variables:
+      sea_surface_temperature:
+        model_var: sea_surface_temperature
+        era5_var: sea_surface_temperature
+      2m_temperature:
+        model_var: 2m_temperature
+        era5_var: 2m_temperature
+
+      geopotential_500:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 500.0
+        level_dim: level
+        era5_level: 500.0
+      geopotential_850:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 850.0
+        level_dim: level
+        era5_level: 850.0
+      temperature_850:
+        model_var: temperature
+        era5_var: temperature
+        level: 850.0
+        level_dim: level
+        era5_level: 850.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      specific_humidity_850:
+        model_var: specific_humidity
+        era5_var: specific_humidity
+        level: 850.0
+        level_dim: level
+        era5_level: 850.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      u_component_of_wind_500:
+        model_var: u_component_of_wind
+        era5_var: u_component_of_wind
+        level: 500.0
+        level_dim: level
+        era5_level: 500.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+
+  ours_si_postprocess_v2_0903:
+    # UC-S2S v2 (postprocess-SI corrected), 366 init dates 2019-2024, 20 members
+    input_dir: /glade/derecho/scratch/bgong/ours_si_postprocess_v2/predictions_0903
+    format: format_b
+    years: [2019, 2020, 2021, 2022, 2023, 2024]
+    variables:
+      geopotential_500:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 500.0
+        level_dim: level      # Format B uses 'level' (hPa)
+        era5_level: 500.0
+      sea_surface_temperature:
+        model_var: sea_surface_temperature
+        era5_var: sea_surface_temperature
+      2m_temperature:
+        model_var: 2m_temperature
+        era5_var: 2m_temperature
+      geopotential_850:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 850.0
+        level_dim: level
+        era5_level: 850.0
+      temperature_850:
+        model_var: temperature
+        era5_var: temperature
+        level: 850.0
+        level_dim: level
+        era5_level: 850.0
+        # pressure-level temperature is not under the scratch ERA5 root
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      geopotential_250:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 250.0
+        level_dim: level
+        era5_level: 250.0
+        # scratch ERA5 geopotential has only levels 50/500/850 -> use campaign (18 levels)
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      specific_humidity_850:
+        model_var: specific_humidity
+        era5_var: specific_humidity
+        level: 850.0
+        level_dim: level
+        era5_level: 850.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      geopotential_200:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 200.0
+        level_dim: level
+        era5_level: 200.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      total_precipitation_24hr:
+        model_var: total_precipitation_24hr
+        era5_var: total_precipitation_24hr
+        model_scale: 1000.0      # m/day -> mm/day
+        era5_scale: 1000.0       # m/day -> mm/day
+      u_component_of_wind_500:
+        model_var: u_component_of_wind
+        era5_var: u_component_of_wind
+        level: 500.0
+        level_dim: level
+        era5_level: 500.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+      10m_u_component_of_wind:
+        model_var: 10m_u_component_of_wind
+        era5_var: 10m_u_component_of_wind
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+
+  ours_si_slow_postprocess_v1:
+    input_dir: /glade/derecho/scratch/bgong/ours_si_slow_postprocess_v1/predictions
+    format: format_b
+    years: [2019, 2020, 2021]
+    variables:
+      sea_surface_temperature:
+        model_var: sea_surface_temperature
+        era5_var: sea_surface_temperature
+      2m_temperature:
+        model_var: 2m_temperature
+        era5_var: 2m_temperature
+      geopotential_500:
+        model_var: geopotential
+        era5_var: geopotential
+        level: 500.0
+        level_dim: level      # Format B uses 'level' (not 'plev')
+      total_precipitation_24hr:
+        model_var: total_precipitation_24hr
+        era5_var: total_precipitation_24hr
+
+  fuxi_s2s:
+    # FuXi-S2S: 312 archives for 2019-2021, 51 members, lead_time 1..42 in DAYS,
+    # native 1.5 deg (121x240, lat north->south) -> regridded to ERA5 1.0 deg.
+    # Verified against ERA5 DAILY MEANS (era5_daily_mean: true) because the FuXi
+    # fields represent daily averages, not instantaneous 00 UTC states.
+    input_dir: /glade/derecho/scratch/bgong/fuxi_s2s
+    format: format_fuxi
+    years: [2019, 2020, 2021]
+    variables:
+      2m_temperature:
+        model_var: t2m
+        era5_var: 2m_temperature
+        era5_daily_mean: true
+      geopotential_500:
+        model_var: z500
+        era5_var: geopotential
+        era5_level: 500.0     # ERA5 level coord is in hPa
+        era5_daily_mean: true
+      geopotential_850:
+        model_var: z850
+        era5_var: geopotential
+        era5_level: 850.0
+        era5_daily_mean: true
+      geopotential_250:
+        model_var: z250
+        era5_var: geopotential
+        era5_level: 250.0
+        # scratch ERA5 geopotential has only 50/500/850 -> campaign (18 levels)
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+        era5_daily_mean: true
+      temperature_850:
+        model_var: t850
+        era5_var: temperature
+        era5_level: 850.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+        era5_daily_mean: true
+      total_precipitation_24hr:
+        model_var: tp
+        era5_var: total_precipitation_24hr
+        model_scale: 24.0        # FuXi tp is a mean rate in mm/h -> mm/day
+        era5_scale: 1000.0       # ERA5 m/day -> mm/day
+        era5_daily_mean: true
+      u_component_of_wind_500:
+        model_var: u500
+        era5_var: u_component_of_wind
+        era5_level: 500.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+        era5_daily_mean: true
+      specific_humidity_850:
+        model_var: q850
+        era5_var: specific_humidity
+        era5_level: 850.0
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+        era5_daily_mean: true
+      10m_u_component_of_wind:
+        model_var: 10u
+        era5_var: 10m_u_component_of_wind
+        era5_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata
+        era5_daily_mean: true
+      sea_surface_temperature:
+        model_var: sst
+        era5_var: sea_surface_temperature
+        era5_daily_mean: true
+
