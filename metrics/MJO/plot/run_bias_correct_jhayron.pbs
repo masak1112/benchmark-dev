@@ -1,0 +1,26 @@
+#!/bin/bash
+#PBS -N bc_jhayron
+#PBS -q main
+#PBS -l select=1:ncpus=1:mem=96GB
+#PBS -l walltime=04:00:00
+#PBS -j oe
+#PBS -A UCHI0014
+
+# Field-level LOYO bias correction for FuXi and UC-S2S (S41u_plain) from Jhayron's archive.
+# Run AFTER 8179168[] (fuxi_s2s_mjo) completes and all RMM files are written.
+#
+# Submit:
+#   qsub run_scripts/run_bias_correct_jhayron.pbs
+
+set -euo pipefail
+
+REPO_ROOT=/glade/work/bgong/MJO_modular
+PY=/glade/work/bgong/mjocast_env/bin/python
+
+echo "=== Jhayron FuXi + S2S field-level bias correction ==="
+echo "Host: $(hostname)  Start: $(date)"
+
+cd "${REPO_ROOT}"
+${PY} run_scripts/field_bias_correct_jhayron.py
+
+echo "Done: $(date)"
