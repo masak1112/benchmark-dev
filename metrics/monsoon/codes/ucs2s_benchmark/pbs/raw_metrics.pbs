@@ -1,0 +1,19 @@
+#!/bin/bash
+#PBS -N ucs2s_raw
+#PBS -A UCHI0014
+#PBS -q develop
+#PBS -l select=1:ncpus=20:mem=180GB
+#PBS -l walltime=02:00:00
+#PBS -j oe
+#PBS -o logs/raw_metrics.log
+# Raw-forecast monsoon metrics (rain vs IMD, indices vs ERA5, LLJ onset)
+set -euo pipefail
+source "$PBS_O_WORKDIR/pbs/env.sh"
+TASKS=$TMPDIR/ucs2s_raw_tasks.$PBS_JOBID
+: > $TASKS
+for mode in native common; do
+  for m in ucs2s_plain ucs2s_plain_bc ucs2s_sstanom ucs2s_sstanom_bc fuxi fuxi_bc ngcm; do echo "$m $mode 5 6 7" >> $TASKS; done
+done
+# extended init window (May-Sep) -- not NGCM (its inits stop in July)
+for m in ucs2s_plain ucs2s_plain_bc ucs2s_sstanom ucs2s_sstanom_bc fuxi fuxi_bc; do echo "$m native 5 6 7 8 9" >> $TASKS; done
+cat $TASKS | xargs -P 20 -L 1 sh -c 'm=$1; mode=$2; shift 2; $0 raw_forecast_metrics.py --model $m --init-mode $mode --months "$@" > logs/raw_${m}_${mode}_m$(echo "$@" | tr -d " ").out 2>&1 && echo "OK $m $mode $*" || echo "FAILED $m $mode $*"' $PY

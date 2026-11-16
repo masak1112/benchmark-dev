@@ -1,0 +1,17 @@
+#!/bin/bash
+#PBS -N ucs2s_pp
+#PBS -A UCHI0014
+#PBS -q develop
+#PBS -l select=1:ncpus=64:mem=120GB
+#PBS -l walltime=02:00:00
+#PBS -j oe
+#PBS -o logs/postprocess.log
+# Raw UC-S2S hindcasts -> 2-deg India tp + per-member monsoon indices (all years)
+set -euo pipefail
+source "$PBS_O_WORKDIR/pbs/env.sh"
+module load cdo
+MODELS=${MODELS:-"ucs2s_plain ucs2s_sstanom fuxi"}
+$PY postprocess_ucs2s.py --model ucs2s_plain --check-cdo
+for m in $MODELS; do
+  $PY postprocess_ucs2s.py --model $m --years ${YEARS:-ALL} --workers ${WORKERS:-62} ${OVERWRITE:+--overwrite}
+done

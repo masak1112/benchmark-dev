@@ -1,0 +1,11 @@
+#!/bin/bash
+#PBS -N ucs2s_plots
+#PBS -A UCHI0014
+#PBS -q develop
+#PBS -l select=1:ncpus=4:mem=32GB
+#PBS -l walltime=00:30:00
+#PBS -j oe
+#PBS -o logs/plots.log
+set -euo pipefail
+source "$PBS_O_WORKDIR/pbs/env.sh"
+$PY compare_models.py --init-mode common native

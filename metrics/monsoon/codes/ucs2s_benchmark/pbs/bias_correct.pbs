@@ -1,0 +1,15 @@
+#!/bin/bash
+#PBS -N ucs2s_bc
+#PBS -A UCHI0014
+#PBS -q develop
+#PBS -l select=1:ncpus=4:mem=100GB
+#PBS -l walltime=01:00:00
+#PBS -j oe
+#PBS -o logs/bias_correct.log
+# LOYO drift/bias correction (S41 'dc' level) of UC-S2S plain / SST-anomaly and FuXi-S2S -> *_bc
+set -euo pipefail
+source "$PBS_O_WORKDIR/pbs/env.sh"
+for m in ${MODELS:-ucs2s_plain ucs2s_sstanom fuxi}; do
+  $PY bias_correct.py --models $m &
+done
+wait

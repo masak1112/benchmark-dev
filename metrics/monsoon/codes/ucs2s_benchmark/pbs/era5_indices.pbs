@@ -1,0 +1,12 @@
+#!/bin/bash
+#PBS -N ucs2s_era5
+#PBS -A UCHI0014
+#PBS -q develop
+#PBS -l select=1:ncpus=17:mem=80GB
+#PBS -l walltime=01:30:00
+#PBS -j oe
+#PBS -o logs/era5_indices.log
+# Daily ERA5 monsoon indices 1991-2024 (verification + climatology)
+set -euo pipefail
+source "$PBS_O_WORKDIR/pbs/env.sh"
+$PY era5_indices.py --years 1991 2024 --workers ${WORKERS:-16}

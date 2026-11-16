@@ -1,0 +1,22 @@
+#!/bin/bash
+#PBS -N ucs2s_onset
+#PBS -A UCHI0014
+#PBS -q develop
+#PBS -l select=1:ncpus=64:mem=200GB
+#PBS -l walltime=06:00:00
+#PBS -j oe
+#PBS -o logs/onset_core.log
+# Legacy onset core (6 steps) for every model x init mode, one process per step.
+set -euo pipefail
+source "$PBS_O_WORKDIR/pbs/env.sh"
+TASKS=$TMPDIR/ucs2s_onset_tasks.$PBS_JOBID
+: > $TASKS
+MODELS=${MODELS:-"ucs2s_plain ucs2s_plain_bc ucs2s_sstanom ucs2s_sstanom_bc fuxi fuxi_bc ngcm"}
+STEPS=${STEPS:-"1 2 3 4 5 6 7"}
+for mode in native common; do
+  for m in $MODELS; do
+    for s in $STEPS; do echo "$m $mode $s" >> $TASKS; done
+  done
+done
+[ -z "${NO_LEGACY:-}" ] && for s in $STEPS; do echo "ngcm_legacy native $s" >> $TASKS; done
+cat $TASKS | xargs -P 62 -L 1 sh -c '$0 run_onset_core.py --model $1 --init-mode $2 --step $3 > logs/onset_$1_$2_step$3.out 2>&1 && echo "OK $1 $2 $3" || echo "FAILED $1 $2 $3"' $PY
