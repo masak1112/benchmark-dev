@@ -1,0 +1,36 @@
+#!/bin/bash
+#PBS -N s2storm_S41_pkgselftest
+#PBS -A S2Storm
+#PBS -q debug
+#PBS -l select=1
+#PBS -l walltime=00:15:00
+#PBS -l filesystems=home:flare
+#PBS -j oe
+# Self-test of the packaged copy (metrics/S41_aurora/inference): plain UC-S2S, start 2025-01-06, member 0 (seed 0), 45 steps, 1 tile,
+# then compare the 27 fields with production member 0 (job 9074289). NOT RUN YET. <= 0.25 node-h.
+#   qsub -v PKG=<abs path of metrics/S41_aurora/inference> selftest.pbs
+# Same command as the production task (hpc/tile/hc_tile.sh + tasks/tasks_sample.jsonl) except: code = the packaged copy, checkpoints read
+# from the _c16 bundle on Lustre instead of a /dev/shm copy, own out/state dirs (nothing existing is overwritten), no task farm.
+R=/lus/flare/projects/S2Storm/s2storm
+module avail frameworks >/dev/null 2>&1; module load frameworks/2026.1.0
+source $R/runs/bing/env/ucs2s-xpu/bin/activate
+set -u
+C=$PKG/code
+T=$R/runs/bing/pkg_selftest/$(date -u +%Y%m%dT%H%M%S)_${PBS_JOBID%%.*}
+mkdir -p $T/state/timing $T/pycache
+export ZE_AFFINITY_MASK=0 OMP_NUM_THREADS=8 HDF5_USE_FILE_LOCKING=FALSE PYTHONPYCACHEPREFIX=$T/pycache
+export S2STORM_CODE=$C PYTHONPATH=$C UCS2S_REPO=$R/ext/S2S UCS2S_CLIMATOLOGY=$R/data/placeholder/climatology_placeholder.nc S2STORM_CLIM=
+export S2STORM_STATE=$T/state
+echo "job $PBS_JOBID pkg $PKG upstream $(git -C $R/ext/S2S rev-parse --short HEAD) out $T start $(date -u)"
+CK=$R/aurora_bundle_v5/checkpoints_plain_c16
+cd $C
+S2STORM_MEMBER_SHARD=0/30 taskset -c 1-8 python -m s2storm.models.ucs2s_xpu --mode dsi --out $T/state/selftest_m00.json -- \
+  --run_name S41u_plain_20250106 --init_dates 2025-01-06 --save_mode hindcast --full_members 0 \
+  --yaml $CK/config/exp16_nvidia_v3.yaml --section S2S \
+  --base_ckpt_rel loaded/3_base_full_state_rollout_finetuned/rollout_ckpt_1000.tar --pp_ckpt_rel loaded/4_postprocess_si/pp_si_ckpt_10800.tar \
+  --ckpt_dir $CK --data_dir $R/aurora_bundle_v5/h5data --out_root $T/out --timing_json $T/state/timing/selftest_m00 -- \
+  --num_members 30 --inference_steps 45 --blend 1.0 --feedback base --base_latent si
+echo "model exit $? $(date -u)"
+NEW=$T/out/S2S/S41u_plain_20250106/predictions/pangu_plasim_S41u_plain_20250106_24h_45step_2025010600_ens_0_h25.nc
+OLD=$R/runs/bing/hc/plain/S2S/S41u_plain_20250106/predictions/pangu_plasim_S41u_plain_20250106_24h_45step_2025010600_ens_0_h25.nc
+python $PKG/selftest/compare_selftest.py $NEW $OLD | tee $T/compare.txt

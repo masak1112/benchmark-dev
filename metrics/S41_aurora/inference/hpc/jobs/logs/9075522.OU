@@ -1,0 +1,2 @@
+job 9075522.aurora-pbs-0001.hostmgmt.cm.aurora.alcf.anl.gov nodes 256 code 0b3e213 start Wed Nov 11 01:40:50 PM UTC 2026
+exit 0 Wed Nov 11 02:38:03 PM UTC 2026; done 24120 tasks

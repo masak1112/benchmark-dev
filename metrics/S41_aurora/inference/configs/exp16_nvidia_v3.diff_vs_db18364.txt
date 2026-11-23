@@ -1,0 +1,96 @@
+--- upstream_db18364/exp16_nvidia_v3.yaml	2026-11-23 18:38:03.000000000 +0000
++++ exp16_nvidia_v3.yaml	2026-11-23 18:38:03.000000000 +0000
+@@ -38,15 +38,14 @@
+   # checkpoint_path_diff: "/net/monsoon/bing/SI/PanguWeather/v2.0/HPC_scripts/results/S2S/si_c1/training_checkpoints/last_ckpt.tar"
+   checkpoint_path_vae_c1: "/data/bing/S2S/checkpoints/c1/ckpt.tar"
+   checkpoint_path_det: "/data/bing/S2S/checkpoints/determinstic/ckpt.tar"
+-  #checkpoint_path_diff: "/data/bing/S2S/v2.0/HPC_scripts/results/S2S/si_c1_full_state/training_checkpoints/last_ckpt.tar"
+-  checkpoint_paht_diff: "/data/bing/S2S/v2.0/HPC_scripts/results/S2S_SSTCOND/si_c1_sstcond/training_checkpoints/diff_ckpt_6001.tar"
++  checkpoint_path_diff: "/data/bing/S2S/v2.0/HPC_scripts/results/S2S/si_c1_full_state/training_checkpoints/last_ckpt.tar"
+   # Frozen base model for postprocess-SI training (train_postprocess_si.py).
+   # Full 571-entry state: encoder + rollout-finetuned model_det + SI unet.
+   # Loaded last so its rollout-finetuned decoder overrides checkpoint_path_det.
+   
+   #checkpoint_path_finetuned: "/data/bing/S2S/v2.0/HPC_scripts/results/S2S/rollout_finetune_finetune_rollout_crps_multipsteps/training_checkpoints/rollout_ckpt_1400.tar"
+- #checkpoint_path_finetuned: "/data/bing/S2S/v2.0/HPC_scripts/results/S2S/rollout_finetune_finetune_rollout_crps/training_checkpoints/rollout_ckpt_1000.tar"
+-  checkpoint_path_finetuned: "/data/bing/S2S/v2.0/HPC_scripts/results/S2S_SSTCOND/rollout_finetune_finetune_rollout_crps_sstcond/training_checkpoints/rollout_ckpt_250.tar"
++  checkpoint_path_finetuned: "/data/bing/S2S/v2.0/HPC_scripts/results/S2S/rollout_finetune_finetune_rollout_crps/training_checkpoints/rollout_ckpt_1000.tar"
++
+ S2S: &S2S
+   <<: *BASE
+   #data_dir: '/glade/campaign/univ/uchi0014/yqsun/pangu_s2s/h5data'
+@@ -72,7 +71,7 @@
+               'sea_ice_cover': 0.,
+               'snow_depth': 0.}
+   mask_output: False
+-  train_year_start: 1979
++  train_year_start: 1984
+   train_year_end: 2018
+   val_year_start: 2018
+   val_year_end: 2019
+@@ -264,65 +263,3 @@
+        341., 342., 343., 344., 345., 346., 347., 348., 349., 350., 351.,
+        352., 353., 354., 355., 356., 357., 358., 359.]
+   #use_ff_input: False
+-
+-# ── Latent SI retrain WITH working SST conditioning (train_diffusion.py) ──────
+-# Same base model as S2S; only the keys below differ. Launched by
+-# HPC_scripts/nvidia_brev_train_si_sstcond.sh with --config=S2S_SSTCOND.
+-#
+-# Why: in si_c1 / si_c1_full_state the UNet's SST cross-attention branch
+-# collapsed to denormals (gate ~1e-6, to_out ~1e-39) because (a) the gate is
+-# zero-initialised so to_out gets no gradient and Adam's coupled weight decay
+-# shrinks it by ~lr per step, and (b) the conditioning was a reparameterised
+-# VAE draw whose noise (std ~0.86) swamps the SST signal (~0.03).
+-S2S_SSTCOND: &S2S_SSTCOND
+-  <<: *S2S
+-  # New run: checkpoints are written next to this path (dir is created by
+-  # train_diffusion.py from exp_dir/config/run_num). Resumes from it if present.
+-  checkpoint_path_diff: "/data/bing/S2S/v2.0/HPC_scripts/results/S2S_SSTCOND/si_c1_sstcond/training_checkpoints/last_ckpt.tar"
+-  # Warm start (UNet weights only, no optimizer state) when checkpoint_path_diff
+-  # does not exist yet. Encoder / model_det still come from their own ckpts.
+-  checkpoint_path_diff_init: "/data/bing/S2S/v2.0/HPC_scripts/results/S2S/si_c1_full_state/training_checkpoints/last_ckpt.tar"
+-  # Drop the collapsed conditioning-branch weights from the warm start and use
+-  # fresh init with a non-zero gate.
+-  reinit_cond_branch: True
+-  cross_attn_gate_init: 0.1
+-  # Condition on the VAE posterior mean of the SST component, not a sample.
+-  vae_cond_mode: 'mean'
+-  # Conditioning branch: no weight decay, 10x lr (gate is a scalar; at the base
+-  # lr of 1e-5 Adam would need ~10k steps to move it by 0.1).
+-  cond_branch_weight_decay: 0.0
+-  cond_branch_lr_mult: 10.0
+-  # Average UNet gradients across the 4 ranks (the original runs did not).
+-  sync_grads: True
+-  # Every N iters log cond_rel_effect (drift change when z is zeroed) and the
+-  # gate / to_out magnitudes, so a second collapse is visible immediately.
+-  cond_diag_freq: 200
+-  # Trained checkpoints from the original run are in checkpoint_path_diff_init;
+-  # postprocess-SI/inference for THIS model must not load checkpoint_path_finetuned
+-  # (its UNet would overwrite the new one) — see the run script.
+-
+-
+-# ── Latent SI conditioned on the PERSISTENT SST ANOMALY (no VAE) ─────────────
+-# Same as S2S_SSTCOND except the cross-attention conditioning z is no longer the
+-# SST-VAE encoding. The dataloader builds it once from the initial condition
+-#   ch0: (SST_ic - daily clim[doy]) / sst_anom_scale, land = 0
+-#   ch1: ocean fraction
+-# interpolated 180x360 -> sst_cond_size (masked bilinear, antialiased), and the
+-# same map is held fixed over the whole rollout (persistence). dim_cond stays 2,
+-# so UNet shapes are unchanged. Launched by HPC_scripts/nvidia_brev_train_si_sstanom.sh.
+-S2S_SSTANOM: &S2S_SSTANOM
+-  <<: *S2S_SSTCOND
+-  data_dir: '/project/pedramh/h5data/h5data'   # h5 files + mean/std .nc
+-  sst_cond_anom: True
+-  sst_clim_path: '/project/pedramh/bing/S2S/v2.0/clim_00z/clim_00z_sst_std.npy'   # [366,180,360], standardized, NaN=land
+-  sst_anom_scale: 0.0583        # from config/exp17_anom.yaml; re-estimate if the std files change
+-  sst_cond_size: [23, 45]
+-  checkpoint_path_vae_c1: "/project/pedramh/bing/checkpoints_UC-S2S_V2/loaded/1_vae_c1/ckpt.tar"   # still loaded (frozen), not used for conditioning
+-  checkpoint_path_det: "/project/pedramh/bing/checkpoints_UC-S2S_V2/loaded/2_pangu_deterministic/ckpt.tar"
+-  checkpoint_path_diff_init: "/project/pedramh/bing/checkpoints_UC-S2S_V2/fallback_not_loaded/latent_si_c1_full_state/last_ckpt.tar"
+-  # New run output (resumes from last_ckpt.tar if present).
+-  checkpoint_path_diff: "/project/pedramh/bing/S2S/v2.0/HPC_scripts/results/S2S_SSTANOM/si_c1_sstanom/training_checkpoints/last_ckpt.tar"
+-  # Base model for the postprocess-SI stage = output of the rollout finetune of THIS
+-  # SI (HPC_scripts/midway_train_sstanom_pipeline.sh, stage 2). It overrides the
+-  # inherited BASE value, which would otherwise load an old UNet over the new one.
+-  checkpoint_path_finetuned: "/project/pedramh/bing/S2S/v2.0/HPC_scripts/results/S2S_SSTANOM/rollout_finetune_rollout_sstanom/training_checkpoints/rollout_last.tar"

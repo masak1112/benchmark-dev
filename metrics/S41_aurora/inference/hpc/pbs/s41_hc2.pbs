@@ -1,0 +1,18 @@
+#!/bin/bash
+#PBS -N s2storm_S41_hc2
+#PBS -A S2Storm
+#PBS -q prod
+#PBS -l select=256
+#PBS -l walltime=01:05:00
+#PBS -l filesystems=home:flare
+#PBS -j oe
+#PBS -o /lus/flare/projects/S2Storm/s2storm/logs/S41/
+R=/lus/flare/projects/S2Storm/s2storm
+module avail frameworks >/dev/null 2>&1; module load frameworks/2026.1.0
+export C=$R/code/s41/run_hc
+WALL_S=$(qstat -f $PBS_JOBID | awk -F" = " "/Resource_List.walltime/{print \$2}" | awk -F: "{print \$1*3600+\$2*60+\$3}")
+export S2STORM_DEADLINE=$(( $(date +%s) + WALL_S - 120 ))
+NN=$(sort -u $PBS_NODEFILE | wc -l)
+echo "job $PBS_JOBID nodes $NN code $(git -C $C rev-parse --short HEAD) start $(date -u)"
+mpiexec -n $(( NN * 12 )) --ppn 12 --cpu-bind=list:1-8:9-16:17-24:25-32:33-40:41-48:53-60:61-68:69-76:77-84:85-92:93-100 env TASKS=$R/runs/bing/hc/tasks_2019-24.jsonl bash $R/runs/bing/hc/hc_tile.sh
+echo "exit $? $(date -u); done $(ls $R/runs/bing/hc/state/*.done 2>/dev/null | wc -l) tasks"

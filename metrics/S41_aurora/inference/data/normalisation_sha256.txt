@@ -1,0 +1,7 @@
+# sha256 of the normalisation / grid files in aurora_bundle_v5/h5data (= --data_dir; hard links to aurora_bundle/h5data, copied from Bing's DSI store /net/spaces/monsoon/S2S/h5data [inferred: copy path not recorded])
+3e58ffe6cac7316117a3a188d763ff7cf4aeb9a291324be4937993f94604774c  pangu_s2s_1979-2018_mean.nc
+7533121b6e9ab4cc7e182ff15bbea5ba5ad675ba7e16638bf7741b147c9516ea  pangu_s2s_1979-2018_std.nc
+b47dd5ebaeba3f61b30ccc1e0567ffe48faf81d50adbb38725bbf9236627519d  pangu_s2s_1979-2018_surface_mean.nc
+b5e59bbd69c6886c61cb6527a618804e5caec30168657f178ceba04c779a206f  pangu_s2s_1979-2018_surface_std.nc
+29b7fcfd93722acd1dacf24f54a28dae392839e9afc192f15d8b17f3f425614b  lat.npy
+4110b8832d568bfb494ee6cb29a236096b78458e3f8dba41bc999d07f9eb2fe3  lon.npy
