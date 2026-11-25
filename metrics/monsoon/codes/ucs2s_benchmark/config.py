@@ -30,7 +30,7 @@ import os as _os
 
 PKG = Path(__file__).resolve().parent                       # .../monsoon/codes/ucs2s_benchmark
 CODES = PKG.parent                                           # .../monsoon/codes (legacy core scripts)
-REPO = Path(_os.environ.get("MONSOON_REPO", "/glade/work/rajatm/benchmark-dev/metrics/monsoon"))
+REPO = Path(_os.environ.get("MONSOON_REPO", str(CODES.parent)))     # .../metrics/monsoon of this checkout
 DATA = Path(_os.environ.get("MONSOON_DATA", str(REPO / "data_files")))   # data + grid files (Derecho)
 
 IMD_DIR = DATA / "IMD_2by2"

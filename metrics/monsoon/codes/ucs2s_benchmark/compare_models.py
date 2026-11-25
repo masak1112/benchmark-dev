@@ -13,6 +13,8 @@ Reads the outputs of run_onset_core.py and raw_forecast_metrics.py and writes to
                                   (f) reliability (15 d)
   fig_scorecard_onset_weekly_<mode>  onset fair BSS (%) and AUC per WEEKLY bin, rows = climatology +
                                   models (style of Masiwal et al. 2026, Fig. 3a,b); _5day_30 = 5-day bins
+  fig_scorecard_onset_weekly_{bss,auc}_common  the same, one figure per metric, climatology +
+                                  UC-S2S plain, FuXi-S2S, NGCM only (HEADLINE_KEYS)
   fig_scorecard_<target>_<tag>    weekly CRPSS (%) / ACC scorecards of the raw-forecast metrics
   raw_summary_<tag>.csv           weekly ACC / CRPSS / bias / spread ratio, all targets
   fig_rain_cmz_<tag>              CMZ rainfall bias, ACC, CRPSS, spread ratio vs lead
@@ -264,6 +266,50 @@ def fig_onset_scorecard(mode, summ, binned, out, bins="weekly"):
     footnote(fig, f"CMZ (2°) · inits 1 May–31 Jul, {mode} init dates · {C.MEM_NUM} members · years {yrs} · "
                   f"BSS vs IMD climatological onset ensemble (climatology row = {lab(keys[0])} init dates)", y=0.0)
     save(fig, out / f"fig_scorecard_onset_{bins}_{mode}")
+
+
+HEADLINE_KEYS = ["ucs2s_plain", "fuxi", "ngcm"]
+HEADLINE_LABELS = {"ucs2s_plain": "UC-S2S"}      # row-label overrides for the single-metric scorecards
+
+
+def fig_onset_scorecard_single(mode, summ, binned, out, keys=HEADLINE_KEYS, bins="weekly"):
+    """One figure per metric (fair BSS %, AUC): rows = climatology + `keys`, columns = onset bins.
+    The climatology row is the IMD climatological onset ensemble at the init dates of the first
+    unshifted model; models with init_shift_days != 0 (FuXi-S2S) are scored against their own
+    (shifted) climatology, whose AUC is given in the footnote."""
+    if not len(binned):
+        return
+    b = binned[binned.bins == bins]
+    keys = [k for k in keys if k in set(b.model)]
+    if not keys:
+        return
+    ref_key = next((k for k in keys if not C.MODELS[k].get("init_shift_days", 0)), keys[0])
+    ref = b[b.model == ref_key]
+    cols = ([f"Week {i + 1}" for i in range(len(ref))] if bins == "weekly"
+            else [x.replace("Days ", "") for x in ref.Bin])
+    rows = ["Climatology"] + [HEADLINE_LABELS.get(k, lab(k)) for k in keys]
+    own = [k for k in keys if k != ref_key and not np.allclose(b[b.model == k].AUC_Climatology.values,
+                                                               ref.AUC_Climatology.values)]
+    yrs = summ.set_index("model").loc[ref_key, "years"]
+    n = int(summ.set_index("model").loc[ref_key, "n_inits"])
+    base_note = f"CMZ (2°) · inits 1 May–31 Jul, {mode} init dates (n={n}) · {C.MEM_NUM} members · years {yrs}"
+    specs = (("bss", "Fair Brier skill score (%)", "RdBu", BSS_CMAP, "{:.1f}",
+              [np.zeros(len(cols))] + [b[b.model == k].Fair_Brier_Skill_Score.values * 100 for k in keys],
+              "skill vs IMD climatological onset ensemble"),
+             ("auc", "AUC", "Blues", AUC_CMAP, "{:.2f}",
+              [ref.AUC_Climatology.values] + [b[b.model == k].AUC.values for k in keys],
+              "; ".join(f"{lab(k)} own (init+{C.MODELS[k]['init_shift_days']} d) climatology: "
+                        + " · ".join(f"{v:.2f}" for v in b[b.model == k].AUC_Climatology.values) for k in own)))
+    for tag, cblab, cmap, norm, fmt, M, note in specs:
+        fig, ax = plt.subplots(figsize=(1.05 * len(cols) + 1.9, 0.42 * len(rows) + 1.55))
+        im = _scorecard(ax, np.array(M, float), rows, cols, cmap, norm, fmt, "")
+        ax.set_xlabel("Onset forecast window" if bins == "weekly" else "Onset forecast window (days)")
+        cb = fig.colorbar(im, ax=ax, fraction=0.05, pad=0.03)
+        cb.set_label(cblab)
+        cb.ax.tick_params(labelsize=8)
+        fig.tight_layout()
+        print(f"  [{tag}] " + base_note + (f" · {note}" if note else ""))   # caption details (not drawn)
+        save(fig, out / f"fig_scorecard_onset_{bins}_{tag}_{mode}")
 
 
 def fig_raw_scorecard(tag, sc, keys, out, target="rain_cmz", weeks=(1, 2, 3, 4, 5, 6)):
@@ -549,6 +595,8 @@ def main():
             fig_onset(mode, summ, binned, rel, out)
             fig_onset_scorecard(mode, summ, binned, out, "weekly")
             fig_onset_scorecard(mode, summ, binned, out, "5day_30")
+            if mode == "common":
+                fig_onset_scorecard_single(mode, summ, binned, out)
             show = ["label", "n_inits", "mae_d1_15", "mae_se_d1_15", "far_d1_15", "mr_d1_15", "mae_d16_30",
                     "far_d16_30", "mr_d16_30", "auc_15", "bss_15", "rpss_15", "bss_30", "rpss_30",
                     "bss_wk", "rpss_wk", "auc_wk"]

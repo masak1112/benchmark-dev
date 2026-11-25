@@ -159,6 +159,11 @@ Conventions:
 - `fig_scorecard_onset_weekly_<mode>`: scorecards in the style of Masiwal et al. (2026,
   arXiv:2602.03767) Fig. 3a,b. Panel (a) is the onset fair BSS (%) and panel (b) the AUC, per weekly
   bin; rows are climatology plus every model. `_5day_30` is the same with the paper's 5-day bins.
+- `fig_scorecard_onset_weekly_bss_common`, `fig_scorecard_onset_weekly_auc_common`: the same scores,
+  one figure per metric, for climatology, UC-S2S (plain), FuXi-S2S and NGCM only
+  (`HEADLINE_KEYS`). They carry no footnote; the caption details are printed when the figures are
+  made. FuXi-S2S is scored against its own climatology, computed one day later; those AUC values
+  are printed too.
 - `fig_scorecard_<target>_<tag>`: weekly CRPSS (%) and ACC scorecards of the raw-forecast metrics,
   for `rain_cmz`, `wy`, `llj` and `olr_cmz`.
 - `fig_onset_<mode>`: CMZ MAE/FAR/MR bars, weekly BSS/AUC lines and the reliability diagram.
