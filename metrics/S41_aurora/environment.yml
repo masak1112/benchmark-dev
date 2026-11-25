@@ -1,0 +1,19 @@
+# Environment of the S41 evaluation (versions as run on Aurora, 2026-11-12: frameworks/2026.1.0 python + a --target lib for xarray/netCDF4).
+# Any recent CPython 3.11-3.12 stack with these packages works; no GPU needed.
+name: s41-eval
+channels: [conda-forge]
+dependencies:
+  - python=3.12
+  - numpy=2.3
+  - scipy=1.18
+  - xarray>=2025.1
+  - netcdf4=1.7
+  - cftime=1.6
+  - h5py=3.16          # only for reading UC-S2S input h5 files (SST masks, ERA5 levels)
+  - pyyaml=6.0
+  - pandas>=2.2
+  - matplotlib=3.11    # figure scripts only
+  - zarr=3.4           # ERA5 staging from ARCO / WeatherBench2 only
+  - fsspec>=2025.1
+  - gcsfs>=2025.1
+  - pytest=9.0

@@ -1,0 +1,38 @@
+# RMSE evaluation configuration
+# Run: python rmse_main.py --model uc_s2s_v2 --var sea_surface_temperature
+
+era5:
+  dir: /glade/derecho/scratch/bgong/era5
+  file_pattern: "{variable}/{year}_180x360.nc"
+  level_dim: level
+
+output:
+  rmse_dir: /glade/work/bgong/benchmark-dev/metrics/RMSE/output
+
+models:
+
+  uc_s2s_v2:
+    input_dir: /glade/derecho/scratch/bgong/ours_si_postprocess_v2/predictions_0903
+    format: format_b
+    years: [2019, 2020, 2021, 2022, 2023]
+    max_members: 20
+    variables:
+      sea_surface_temperature:
+        model_var: sea_surface_temperature
+        era5_var: sea_surface_temperature
+      2m_temperature:
+        model_var: 2m_temperature
+        era5_var: 2m_temperature
+
+  si_s2s:
+    input_dir: /glade/derecho/scratch/bgong/amip_s2s_train_scratch
+    format: format_a
+    years: [2019, 2020, 2021, 2022]
+    max_members: 20
+    variables:
+      sea_surface_temperature:
+        model_var: skin_temperature
+        era5_var: sea_surface_temperature
+      2m_temperature:
+        model_var: 2m_temperature
+        era5_var: 2m_temperature

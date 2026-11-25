@@ -1,0 +1,25 @@
+#!/bin/bash
+#PBS -N fuxi_15_fullyear
+#PBS -A UCHI0018
+#PBS -q develop
+#PBS -l walltime=06:00:00
+#PBS -l select=1:ncpus=1:mem=64GB
+#PBS -j oe
+#PBS -o /glade/work/bgong/MJO_results/logs/fuxi_15_fullyear.log
+
+set -euo pipefail
+PY=/glade/work/bgong/mjocast_env/bin/python
+REPO=/glade/work/bgong/MJO_modular
+
+cd "${REPO}"
+echo "=== FuXi 1.5° full-year step2 ==="
+echo "Start: $(date)"
+
+${PY} src/step2_prepare_forecasts.py --config config/pipeline_config.yaml \
+    --dataset fuxi_s2s_15
+
+echo "=== Step4 ==="
+${PY} src/step4_run_forecasts.py --config config/pipeline_config.yaml \
+    --dataset fuxi_s2s_15
+
+echo "All done: $(date)"

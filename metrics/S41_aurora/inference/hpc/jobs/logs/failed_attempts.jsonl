@@ -1,0 +1,9 @@
+{"id": "S41u_plain_20191223_m12", "rank": 1798, "tile": 10, "host": "x4703c6s0b0n0", "job": "9075522", "exit": 1, "seconds": 21.7, "time": 1794404549.7199051}
+{"id": "S41u_plain_20200113_m04", "rank": 1732, "tile": 4, "host": "x4702c1s5b0n0", "job": "9075522", "exit": 1, "seconds": 17.1, "time": 1794404548.3308895}
+{"id": "S41u_plain_20210719_m01", "rank": 2305, "tile": 1, "host": "x4704c4s0b0n0", "job": "9075522", "exit": 1, "seconds": 2.6, "time": 1794405604.213446}
+{"id": "S41u_plain_20221219_m08", "rank": 2085, "tile": 9, "host": "x4704c1s2b0n0", "job": "9075522", "exit": 1, "seconds": 6.1, "time": 1794405731.759251}
+{"id": "S41u_plain_20250106_m15", "rank": 2685, "tile": 9, "host": "x4400c4s7b0n0", "job": "9074289", "exit": 1, "seconds": 16.2, "time": 1794382857.6375165}
+{"id": "S41u_sstanom_20191223_m05", "rank": 1505, "tile": 5, "host": "x4106c3s1b0n0", "job": "9075362", "exit": 1, "seconds": 29.0, "time": 1794400008.0751624}
+{"id": "S41u_sstanom_20220801_m03", "rank": 1932, "tile": 0, "host": "x4106c7s6b0n0", "job": "9075362", "exit": 1, "seconds": 6.1, "time": 1794401193.428671}
+{"id": "S41u_sstanom_20230327_m13", "rank": 368, "tile": 8, "host": "x4102c5s6b0n0", "job": "9075362", "exit": 1, "seconds": 2.2, "time": 1794401243.7119884}
+{"id": "S41u_sstanom_20250428_m06", "rank": 486, "tile": 6, "host": "x4314c1s7b0n0", "job": "9074289", "exit": 1, "seconds": 16.2, "time": 1794382857.650325}

@@ -1,1 +1,11 @@
+# Large / generated monsoon data stay out of git. The IMD 2-deg files, threshold file,
+# grid file and India shapefile that were already tracked (metrics/monsoon/data_files/)
+# remain tracked; use `git add -f` to add another small reference file there.
 **/data_files
+metrics/MJO/cal_pc/
+metrics/monsoon/jupyter_notebooks/merged_precip_2019.nc
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo

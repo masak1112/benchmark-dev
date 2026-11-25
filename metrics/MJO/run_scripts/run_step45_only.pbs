@@ -1,0 +1,40 @@
+#!/bin/bash
+#PBS -N mjo_step45_v2
+#PBS -q develop
+#PBS -l select=1:ncpus=1:mem=64GB
+#PBS -l walltime=06:00:00
+#PBS -j oe
+#PBS -A UCHI0018
+
+set -euo pipefail
+
+REPO_ROOT=/glade/work/bgong/MJO_modular
+CONFIG=${CONFIG:-${REPO_ROOT}/config/pipeline_config.yaml}
+PY=/glade/work/bgong/mjocast_env/bin/python
+
+echo "=== Step 4+5 for ours_si_v2 ==="
+echo "Host   : $(hostname)"
+echo "Start  : $(date)"
+
+cd "${REPO_ROOT}"
+
+echo ""
+echo ">>> Step 4: RMM projection"
+${PY} src/step4_run_forecasts.py --config "${CONFIG}"
+echo "Step 4 complete: $(date)"
+
+echo ""
+echo ">>> Step 5a: Bivariate ACC"
+${PY} src/step5_acc_plot.py --config "${CONFIG}"
+
+echo ""
+echo ">>> Step 5b: Phase space plots"
+${PY} src/step5_phase_space.py --config "${CONFIG}"
+
+echo ""
+echo ">>> Copying plots to /glade/work/bgong/MJO_results/plots/"
+mkdir -p /glade/work/bgong/MJO_results/plots
+cp /glade/campaign/univ/uchi0018/bing/mjo/plots/*.png /glade/work/bgong/MJO_results/plots/ 2>/dev/null && echo "Plots copied." || echo "No plots to copy."
+
+echo ""
+echo "=== Done: $(date) ==="

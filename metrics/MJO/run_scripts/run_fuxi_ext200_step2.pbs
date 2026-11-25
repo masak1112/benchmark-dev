@@ -1,0 +1,17 @@
+#!/bin/bash
+#PBS -A UCHI0014
+#PBS -q develop
+#PBS -l walltime=06:00:00
+#PBS -l select=1:ncpus=1:mem=64GB
+#PBS -j oe
+# usage: qsub -N fx200_00 -v PART=00 -o <log> run_fuxi_ext200_step2.pbs
+set -uo pipefail
+PY=/glade/work/bgong/mjocast_env/bin/python
+cd /glade/work/bgong/MJO_modular
+fail=0
+for D in $(cat run_scripts/fuxi_ext200_part${PART}.txt); do
+  ${PY} src/step2_prepare_forecasts.py --config config/pipeline_config.yaml --dataset fuxi_s2s_ext200 --date $D \
+    || { echo "FAILED $D"; fail=1; }
+done
+echo "part ${PART} done $(date) fail=${fail}"
+exit $fail

@@ -1,0 +1,41 @@
+#!/bin/bash
+#PBS -N ecmwf_step4
+#PBS -q develop
+#PBS -l select=1:ncpus=1:mem=64GB
+#PBS -l walltime=02:00:00
+#PBS -j oe
+#PBS -A UCHI0014
+
+set -euo pipefail
+
+module load wgrib2
+
+REPO_ROOT=/glade/work/bgong/MJO_modular
+CONFIG=${CONFIG:-${REPO_ROOT}/config/pipeline_config.yaml}
+DATES_FILE=${DATES_FILE:-${REPO_ROOT}/run_scripts/ecmwf_missing_dates.txt}
+CHUNK=${CHUNK:-90}
+PY=/glade/work/bgong/mjocast_env/bin/python
+
+TASK_ID=${PBS_ARRAY_INDEX:-0}
+START=$(( TASK_ID * CHUNK + 1 ))
+END=$(( START + CHUNK - 1 ))
+
+echo "=== ECMWF step4 task ${TASK_ID} (dates ${START}-${END}) ==="
+echo "Host  : $(hostname)"
+echo "Start : $(date)"
+
+DATE_ARGS=""
+while IFS= read -r date; do
+    DATE_ARGS="${DATE_ARGS} --date ${date}"
+done < <(sed -n "${START},${END}p" "${DATES_FILE}")
+
+if [ -z "${DATE_ARGS}" ]; then
+    echo "No dates for this task — exiting."
+    exit 0
+fi
+
+cd "${REPO_ROOT}"
+echo "--- Step 4: compute RMM output ---"
+${PY} src/step4_run_forecasts.py --config "${CONFIG}" --dataset ecmwf_s2s ${DATE_ARGS}
+
+echo "Done: $(date)"

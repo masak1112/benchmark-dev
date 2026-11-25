@@ -1,0 +1,10 @@
+# Resolved (YAML anchors merged) section used by the run vs the same section at upstream db18364
+
+## S2S (135 keys in the bundle copy)
+- checkpoint_paht_diff: upstream db18364 = '/data/bing/S2S/v2.0/HPC_scripts/results/S2S_SSTCOND/si_c1_sstcond/training_checkpoints/diff_ckpt_6001.tar'; bundle (used) = '<absent>'
+- checkpoint_path_diff: upstream db18364 = '<absent>'; bundle (used) = '/data/bing/S2S/v2.0/HPC_scripts/results/S2S/si_c1_full_state/training_checkpoints/last_ckpt.tar'
+- checkpoint_path_finetuned: upstream db18364 = '/data/bing/S2S/v2.0/HPC_scripts/results/S2S_SSTCOND/rollout_finetune_finetune_rollout_crps_sstcond/training_checkpoints/rollout_ckpt_250.tar'; bundle (used) = '/data/bing/S2S/v2.0/HPC_scripts/results/S2S/rollout_finetune_finetune_rollout_crps/training_checkpoints/rollout_ckpt_1000.tar'
+- train_year_start: upstream db18364 = 1979; bundle (used) = 1984
+
+## S2S_SSTANOM (149 keys in the bundle copy)
+- no differences

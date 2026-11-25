@@ -1,0 +1,17 @@
+#!/bin/bash
+#PBS -N fuxi_ext200_test
+#PBS -A UCHI0014
+#PBS -q develop
+#PBS -l walltime=01:00:00
+#PBS -l select=1:ncpus=1:mem=64GB
+#PBS -j oe
+#PBS -o /glade/work/bgong/MJO_results/logs/fuxi_ext200_test.log
+set -euo pipefail
+PY=/glade/work/bgong/mjocast_env/bin/python
+cd /glade/work/bgong/MJO_modular
+D=20190509
+echo "step2 start $(date)"
+${PY} src/step2_prepare_forecasts.py --config config/pipeline_config.yaml --dataset fuxi_s2s_ext200 --date $D
+echo "step4 start $(date)"
+${PY} src/step4_run_forecasts.py --config config/pipeline_config.yaml --dataset fuxi_s2s_ext200 --date $D
+echo "done $(date)"

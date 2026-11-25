@@ -1,0 +1,28 @@
+#!/bin/bash
+#PBS -N ecmwf_hc_b3
+#PBS -q develop
+#PBS -l select=1:ncpus=1:mem=64GB
+#PBS -l walltime=02:00:00
+#PBS -j oe
+#PBS -A UCHI0014
+
+set -euo pipefail
+module load wgrib2
+
+REPO_ROOT=/glade/work/bgong/MJO_modular
+CONFIG=${REPO_ROOT}/config/pipeline_config.yaml
+PY=/glade/work/bgong/mjocast_env/bin/python
+
+echo "=== ECMWF hindcast batch3 (7 dates) ==="
+echo "Host: $(hostname)  Start: $(date)"
+
+DATE_ARGS=""
+while IFS= read -r date; do
+    DATE_ARGS="${DATE_ARGS} --date ${date}"
+done < ${REPO_ROOT}/run_scripts/ecmwf_hindcast_ready_batch3.txt
+
+cd "${REPO_ROOT}"
+${PY} src/step2_prepare_forecasts.py --config "${CONFIG}" --dataset ecmwf_s2s ${DATE_ARGS}
+${PY} src/step4_run_forecasts.py     --config "${CONFIG}" --dataset ecmwf_s2s ${DATE_ARGS}
+
+echo "Done: $(date)"

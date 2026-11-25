@@ -1,0 +1,240 @@
+/opt/aurora/26.181.0/frameworks/aurora_frameworks-2026.1.0/lib/python3.12/site-packages/torch/library.py:505: UserWarning: Warning only once for all operators,  other operators may also be overridden.
+  Overriding a previously registered kernel for the same operator and the same dispatch key
+  operator: aten::topk(Tensor self, SymInt k, int dim=-1, bool largest=True, bool sorted=True) -> (Tensor values, Tensor indices)
+    registered at /lus/tegu/projects/datasets/software/26.181.0/wheelforge/repositories/pytorch_2.13.0_patched_08_02_2026/pytorch/build/aten/src/ATen/RegisterSchema.cpp:6
+  dispatch key: XPU
+  previous kernel: registered at /lus/tegu/projects/datasets/software/26.181.0/wheelforge/repositories/pytorch_2.13.0_patched_08_02_2026/pytorch/build/aten/src/ATen/RegisterCPU_1.cpp:9289
+       new kernel: registered at /opt/aurora/26.181.0/frameworks/aurora_frameworks-2026.1.0/lib/python3.12/site-packages/torch/__init__.py:3095 (Triggered internally at /lus/tegu/projects/datasets/software/26.181.0/wheelforge/repositories/pytorch_2.13.0_patched_08_02_2026/pytorch/aten/src/ATen/core/dispatch/OperatorEntry.cpp:208.)
+  self.m.impl(
+/lus/flare/projects/S2Storm/s2storm/runs/bing/env/ucs2s-xpu/lib/python3.12/site-packages/timm/models/layers/__init__.py:48: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+2026-11-11 07:41:23,681 - root - INFO - Torch version: 2.13.0a0+gitcf30153
+2026-11-11 07:41:26,293 - root - INFO - --------------- Versions ---------------
+2026-11-11 07:41:26,296 - root - INFO - Torch: 2.13.0a0+gitcf30153
+2026-11-11 07:41:26,296 - root - INFO - ----------------------------------------
+2026-11-11 07:41:26,296 - root - INFO - ------------------ Configuration ------------------
+2026-11-11 07:41:26,297 - root - INFO - Configuration file: /dev/shm/s41/checkpoints_sstanom/config/exp16_midway_sstanom.yaml
+2026-11-11 07:41:26,297 - root - INFO - Configuration name: S2S_SSTANOM
+2026-11-11 07:41:26,297 - root - INFO - data_dir /lus/flare/projects/S2Storm/s2storm/aurora_bundle_v5/h5data
+2026-11-11 07:41:26,297 - root - INFO - sst_cond_anom True
+2026-11-11 07:41:26,297 - root - INFO - sst_clim_path /dev/shm/s41/checkpoints_sstanom/config/clim_00z_sst_std.npy
+2026-11-11 07:41:26,297 - root - INFO - sst_anom_scale 0.0583
+2026-11-11 07:41:26,298 - root - INFO - sst_cond_size [23, 45]
+2026-11-11 07:41:26,298 - root - INFO - checkpoint_path_vae_c1 /dev/shm/s41/checkpoints_sstanom/loaded/1_vae_c1/ckpt.tar
+2026-11-11 07:41:26,298 - root - INFO - checkpoint_path_det /dev/shm/s41/checkpoints_sstanom/loaded/2_pangu_deterministic/ckpt.tar
+2026-11-11 07:41:26,298 - root - INFO - checkpoint_path_diff_init /project/pedramh/bing/checkpoints_UC-S2S_V2/fallback_not_loaded/latent_si_c1_full_state/last_ckpt.tar
+2026-11-11 07:41:26,298 - root - INFO - checkpoint_path_diff /dev/shm/s41/checkpoints_sstanom/fallback_not_loaded/latent_si_multicond_stage1/last_ckpt.tar
+2026-11-11 07:41:26,298 - root - INFO - checkpoint_path_finetuned /dev/shm/s41/checkpoints_sstanom/loaded/3_base_full_state_rollout_finetuned_sstanom/rollout_ckpt_650.tar
+2026-11-11 07:41:26,298 - root - INFO - checkpoint_path_decoder_init /project/pedramh/bing/checkpoints_UC-S2S_V2/loaded/3_base_full_state_rollout_finetuned/rollout_ckpt_1000.tar
+2026-11-11 07:41:26,299 - root - INFO - pp_val_freq 500
+2026-11-11 07:41:26,299 - root - INFO - reinit_cond_branch True
+2026-11-11 07:41:26,299 - root - INFO - cross_attn_gate_init 0.1
+2026-11-11 07:41:26,299 - root - INFO - vae_cond_mode mean
+2026-11-11 07:41:26,299 - root - INFO - cond_branch_weight_decay 0.0
+2026-11-11 07:41:26,299 - root - INFO - cond_branch_lr_mult 10.0
+2026-11-11 07:41:26,300 - root - INFO - sync_grads True
+2026-11-11 07:41:26,300 - root - INFO - cond_diag_freq 200
+2026-11-11 07:41:26,300 - root - INFO - upper_air_variables ['temperature', 'u_component_of_wind', 'v_component_of_wind', 'specific_humidity', 'geopotential']
+2026-11-11 07:41:26,300 - root - INFO - surface_variables ['2m_temperature', '10m_u_component_of_wind', '10m_v_component_of_wind', 'mean_sea_level_pressure', 'surface_pressure']
+2026-11-11 07:41:26,300 - root - INFO - diagnostic_variables ['total_precipitation_24hr', 'mean_top_net_long_wave_radiation_flux']
+2026-11-11 07:41:26,300 - root - INFO - land_variables ['volumetric_soil_water_layer_1', 'soil_temperature_level_1', 'skin_temperature']
+2026-11-11 07:41:26,301 - root - INFO - ocean_variables ['sea_surface_temperature']
+2026-11-11 07:41:26,301 - root - INFO - constant_boundary_variables ['land_sea_mask', 'geopotential_at_surface']
+2026-11-11 07:41:26,301 - root - INFO - varying_boundary_variables ['toa_incident_solar_radiation']
+2026-11-11 07:41:26,301 - root - INFO - mask_fill {'volumetric_soil_water_layer_1': 0.0, 'soil_temperature_level_1': 270.0, 'skin_temperature': 270.0, 'sea_surface_temperature': 270.0, 'sea_ice_cover': 0.0, 'snow_depth': 0.0}
+2026-11-11 07:41:26,301 - root - INFO - mask_output False
+2026-11-11 07:41:26,301 - root - INFO - train_year_start 1979
+2026-11-11 07:41:26,301 - root - INFO - train_year_end 2018
+2026-11-11 07:41:26,302 - root - INFO - val_year_start 2018
+2026-11-11 07:41:26,302 - root - INFO - val_year_end 2019
+2026-11-11 07:41:26,302 - root - INFO - data_timedelta_hours 6
+2026-11-11 07:41:26,302 - root - INFO - surface_mean pangu_s2s_1979-2018_surface_mean.nc
+2026-11-11 07:41:26,302 - root - INFO - surface_std pangu_s2s_1979-2018_surface_std.nc
+2026-11-11 07:41:26,302 - root - INFO - surface_ff_std pangu_s2s_1979-2018_surface_std.nc
+2026-11-11 07:41:26,303 - root - INFO - upper_air_mean pangu_s2s_1979-2018_mean.nc
+2026-11-11 07:41:26,303 - root - INFO - upper_air_std pangu_s2s_1979-2018_std.nc
+2026-11-11 07:41:26,303 - root - INFO - upper_air_ff_std pangu_s2s_1979-2018_std.nc
+2026-11-11 07:41:26,303 - root - INFO - boundary_mean pangu_s2s_1979-2018_surface_mean.nc
+2026-11-11 07:41:26,303 - root - INFO - boundary_std pangu_s2s_1979-2018_surface_std.nc
+2026-11-11 07:41:26,303 - root - INFO - diagnostic_mean pangu_s2s_1979-2018_surface_mean.nc
+2026-11-11 07:41:26,304 - root - INFO - diagnostic_std pangu_s2s_1979-2018_surface_std.nc
+2026-11-11 07:41:26,304 - root - INFO - climatology_file /lus/flare/projects/S2Storm/s2storm/data/placeholder/climatology_placeholder.nc
+2026-11-11 07:41:26,304 - root - INFO - calendar standard
+2026-11-11 07:41:26,304 - root - INFO - timedelta_hours 24
+2026-11-11 07:41:26,304 - root - INFO - batch_size 4
+2026-11-11 07:41:26,304 - root - INFO - max_epochs 200
+2026-11-11 07:41:26,304 - root - INFO - has_year_zero False
+2026-11-11 07:41:26,305 - root - INFO - num_levels 17upper_air_boundary
+2026-11-11 07:41:26,305 - root - INFO - levels [5, 10, 20, 30, 50, 70, 100, 150, 250, 300, 400, 500, 600, 700, 850, 925, 1000]
+2026-11-11 07:41:26,305 - root - INFO - horizontal_resolution [180, 360]
+2026-11-11 07:41:26,305 - root - INFO - depths [2, 6, 6, 2]
+2026-11-11 07:41:26,305 - root - INFO - predict_delta False
+2026-11-11 07:41:26,305 - root - INFO - patch_size [2, 4, 4]
+2026-11-11 07:41:26,306 - root - INFO - updown_scale_factor 2
+2026-11-11 07:41:26,306 - root - INFO - window_size [2, 6, 12]
+2026-11-11 07:41:26,306 - root - INFO - epsilon_factor 0
+2026-11-11 07:41:26,306 - root - INFO - upper_air_boundary False
+2026-11-11 07:41:26,306 - root - INFO - subpixel_deconv True
+2026-11-11 07:41:26,306 - root - INFO - recovery_head True
+2026-11-11 07:41:26,306 - root - INFO - diagnostic_head False
+2026-11-11 07:41:26,307 - root - INFO - vertical_windowing True
+2026-11-11 07:41:26,307 - root - INFO - train_year_to_year False
+2026-11-11 07:41:26,307 - root - INFO - diagnostic_acc False
+2026-11-11 07:41:26,307 - root - INFO - diagnostic_gif False
+2026-11-11 07:41:26,307 - root - INFO - diagnostic_spectra False
+2026-11-11 07:41:26,307 - root - INFO - forecast_lead_times [1, 2, 10, 15, 45]
+2026-11-11 07:41:26,308 - root - INFO - diagnostic_logs True
+2026-11-11 07:41:26,308 - root - INFO - dropout_rate 0.1
+2026-11-11 07:41:26,308 - root - INFO - ic_noise_std 0.0
+2026-11-11 07:41:26,308 - root - INFO - step_noise_std 0.0
+2026-11-11 07:41:26,308 - root - INFO - use_gaussian_latent False
+2026-11-11 07:41:26,308 - root - INFO - base_temperature 1.0
+2026-11-11 07:41:26,308 - root - INFO - temperature_growth 0.0
+2026-11-11 07:41:26,309 - root - INFO - sel_dates True
+2026-11-11 07:41:26,309 - root - INFO - lev plev
+2026-11-11 07:41:26,309 - root - INFO - num_inferences 10000
+2026-11-11 07:41:26,309 - root - INFO - pp_fields all
+2026-11-11 07:41:26,309 - root - INFO - pp_headline_fields ['2m_temperature', 'total_precipitation_24hr', 'geopotential_500']
+2026-11-11 07:41:26,309 - root - INFO - pp_base_channels 64
+2026-11-11 07:41:26,309 - root - INFO - pp_c_mults [1, 2, 4, 8]
+2026-11-11 07:41:26,310 - root - INFO - pp_scale [2, 2, 2]
+2026-11-11 07:41:26,310 - root - INFO - pp_gamma_type brownian
+2026-11-11 07:41:26,310 - root - INFO - pp_dropout 0.1
+2026-11-11 07:41:26,310 - root - INFO - pp_lr 0.0002
+2026-11-11 07:41:26,310 - root - INFO - pp_sample_steps 20
+2026-11-11 07:41:26,310 - root - INFO - pp_blend 1.0
+2026-11-11 07:41:26,311 - root - INFO - pp_ckpt_freq 200
+2026-11-11 07:41:26,311 - root - INFO - pp_val_ics 4
+2026-11-11 07:41:26,311 - root - INFO - pp_val_members 4
+2026-11-11 07:41:26,311 - root - INFO - pp_val_draws 1
+2026-11-11 07:41:26,311 - root - INFO - pp_val_lead_days [1, 3, 5]
+2026-11-11 07:41:26,311 - root - INFO - pp_val_max_steps 5
+2026-11-11 07:41:26,311 - root - INFO - pp_val_indices [0, 1, 2, 3]
+2026-11-11 07:41:26,312 - root - INFO - slow_fields ['sea_surface_temperature', 'skin_temperature', 'soil_temperature_level_1', 'volumetric_soil_water_layer_1', 'total_precipitation_24hr']
+2026-11-11 07:41:26,312 - root - INFO - slow_base_channels 32
+2026-11-11 07:41:26,312 - root - INFO - slow_c_mults [1, 2, 4]
+2026-11-11 07:41:26,312 - root - INFO - slow_scale [2, 2]
+2026-11-11 07:41:26,312 - root - INFO - slow_gamma_type brownian
+2026-11-11 07:41:26,312 - root - INFO - slow_dropout 0.1
+2026-11-11 07:41:26,313 - root - INFO - slow_lr 0.0002
+2026-11-11 07:41:26,313 - root - INFO - slow_sample_steps 20
+2026-11-11 07:41:26,313 - root - INFO - slow_max_lead_steps 45
+2026-11-11 07:41:26,313 - root - INFO - slow_blend 1.0
+2026-11-11 07:41:26,313 - root - INFO - slow_spread_boost 0.0
+2026-11-11 07:41:26,313 - root - INFO - slow_ckpt_freq 200
+2026-11-11 07:41:26,313 - root - INFO - slow_val_freq 5000
+2026-11-11 07:41:26,314 - root - INFO - slow_val_ics 4
+2026-11-11 07:41:26,314 - root - INFO - slow_val_members 4
+2026-11-11 07:41:26,314 - root - INFO - slow_val_lead_days [1, 5, 10]
+2026-11-11 07:41:26,314 - root - INFO - slow_val_indices [0, 1, 2, 3]
+2026-11-11 07:41:26,314 - root - INFO - use_reentrant False
+2026-11-11 07:41:26,314 - root - INFO - checkpointing 2
+2026-11-11 07:41:26,315 - root - INFO - lat [-89.5, -88.5, -87.5, -86.5, -85.5, -84.5, -83.5, -82.5, -81.5, -80.5, -79.5, -78.5, -77.5, -76.5, -75.5, -74.5, -73.5, -72.5, -71.5, -70.5, -69.5, -68.5, -67.5, -66.5, -65.5, -64.5, -63.5, -62.5, -61.5, -60.5, -59.5, -58.5, -57.5, -56.5, -55.5, -54.5, -53.5, -52.5, -51.5, -50.5, -49.5, -48.5, -47.5, -46.5, -45.5, -44.5, -43.5, -42.5, -41.5, -40.5, -39.5, -38.5, -37.5, -36.5, -35.5, -34.5, -33.5, -32.5, -31.5, -30.5, -29.5, -28.5, -27.5, -26.5, -25.5, -24.5, -23.5, -22.5, -21.5, -20.5, -19.5, -18.5, -17.5, -16.5, -15.5, -14.5, -13.5, -12.5, -11.5, -10.5, -9.5, -8.5, -7.5, -6.5, -5.5, -4.5, -3.5, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5, 18.5, 19.5, 20.5, 21.5, 22.5, 23.5, 24.5, 25.5, 26.5, 27.5, 28.5, 29.5, 30.5, 31.5, 32.5, 33.5, 34.5, 35.5, 36.5, 37.5, 38.5, 39.5, 40.5, 41.5, 42.5, 43.5, 44.5, 45.5, 46.5, 47.5, 48.5, 49.5, 50.5, 51.5, 52.5, 53.5, 54.5, 55.5, 56.5, 57.5, 58.5, 59.5, 60.5, 61.5, 62.5, 63.5, 64.5, 65.5, 66.5, 67.5, 68.5, 69.5, 70.5, 71.5, 72.5, 73.5, 74.5, 75.5, 76.5, 77.5, 78.5, 79.5, 80.5, 81.5, 82.5, 83.5, 84.5, 85.5, 86.5, 87.5, 88.5, 89.5]
+2026-11-11 07:41:26,315 - root - INFO - lon [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0, 28.0, 29.0, 30.0, 31.0, 32.0, 33.0, 34.0, 35.0, 36.0, 37.0, 38.0, 39.0, 40.0, 41.0, 42.0, 43.0, 44.0, 45.0, 46.0, 47.0, 48.0, 49.0, 50.0, 51.0, 52.0, 53.0, 54.0, 55.0, 56.0, 57.0, 58.0, 59.0, 60.0, 61.0, 62.0, 63.0, 64.0, 65.0, 66.0, 67.0, 68.0, 69.0, 70.0, 71.0, 72.0, 73.0, 74.0, 75.0, 76.0, 77.0, 78.0, 79.0, 80.0, 81.0, 82.0, 83.0, 84.0, 85.0, 86.0, 87.0, 88.0, 89.0, 90.0, 91.0, 92.0, 93.0, 94.0, 95.0, 96.0, 97.0, 98.0, 99.0, 100.0, 101.0, 102.0, 103.0, 104.0, 105.0, 106.0, 107.0, 108.0, 109.0, 110.0, 111.0, 112.0, 113.0, 114.0, 115.0, 116.0, 117.0, 118.0, 119.0, 120.0, 121.0, 122.0, 123.0, 124.0, 125.0, 126.0, 127.0, 128.0, 129.0, 130.0, 131.0, 132.0, 133.0, 134.0, 135.0, 136.0, 137.0, 138.0, 139.0, 140.0, 141.0, 142.0, 143.0, 144.0, 145.0, 146.0, 147.0, 148.0, 149.0, 150.0, 151.0, 152.0, 153.0, 154.0, 155.0, 156.0, 157.0, 158.0, 159.0, 160.0, 161.0, 162.0, 163.0, 164.0, 165.0, 166.0, 167.0, 168.0, 169.0, 170.0, 171.0, 172.0, 173.0, 174.0, 175.0, 176.0, 177.0, 178.0, 179.0, 180.0, 181.0, 182.0, 183.0, 184.0, 185.0, 186.0, 187.0, 188.0, 189.0, 190.0, 191.0, 192.0, 193.0, 194.0, 195.0, 196.0, 197.0, 198.0, 199.0, 200.0, 201.0, 202.0, 203.0, 204.0, 205.0, 206.0, 207.0, 208.0, 209.0, 210.0, 211.0, 212.0, 213.0, 214.0, 215.0, 216.0, 217.0, 218.0, 219.0, 220.0, 221.0, 222.0, 223.0, 224.0, 225.0, 226.0, 227.0, 228.0, 229.0, 230.0, 231.0, 232.0, 233.0, 234.0, 235.0, 236.0, 237.0, 238.0, 239.0, 240.0, 241.0, 242.0, 243.0, 244.0, 245.0, 246.0, 247.0, 248.0, 249.0, 250.0, 251.0, 252.0, 253.0, 254.0, 255.0, 256.0, 257.0, 258.0, 259.0, 260.0, 261.0, 262.0, 263.0, 264.0, 265.0, 266.0, 267.0, 268.0, 269.0, 270.0, 271.0, 272.0, 273.0, 274.0, 275.0, 276.0, 277.0, 278.0, 279.0, 280.0, 281.0, 282.0, 283.0, 284.0, 285.0, 286.0, 287.0, 288.0, 289.0, 290.0, 291.0, 292.0, 293.0, 294.0, 295.0, 296.0, 297.0, 298.0, 299.0, 300.0, 301.0, 302.0, 303.0, 304.0, 305.0, 306.0, 307.0, 308.0, 309.0, 310.0, 311.0, 312.0, 313.0, 314.0, 315.0, 316.0, 317.0, 318.0, 319.0, 320.0, 321.0, 322.0, 323.0, 324.0, 325.0, 326.0, 327.0, 328.0, 329.0, 330.0, 331.0, 332.0, 333.0, 334.0, 335.0, 336.0, 337.0, 338.0, 339.0, 340.0, 341.0, 342.0, 343.0, 344.0, 345.0, 346.0, 347.0, 348.0, 349.0, 350.0, 351.0, 352.0, 353.0, 354.0, 355.0, 356.0, 357.0, 358.0, 359.0]
+2026-11-11 07:41:26,315 - root - INFO - loss weightedl1
+2026-11-11 07:41:26,315 - root - INFO - lr 1e-05
+2026-11-11 07:41:26,315 - root - INFO - weight_decay 3e-06
+2026-11-11 07:41:26,315 - root - INFO - scheduler CosineAnnealingLR
+2026-11-11 07:41:26,316 - root - INFO - num_data_workers 1
+2026-11-11 07:41:26,316 - root - INFO - oc_pct_start 0.1
+2026-11-11 07:41:26,316 - root - INFO - oc_div_factor 100000.0
+2026-11-11 07:41:26,316 - root - INFO - oc_final_div_factor 0.00025
+2026-11-11 07:41:26,316 - root - INFO - log_to_screen True
+2026-11-11 07:41:26,316 - root - INFO - log_to_wandb False
+2026-11-11 07:41:26,316 - root - INFO - wandb_offline False
+2026-11-11 07:41:26,317 - root - INFO - save_checkpoint True
+2026-11-11 07:41:26,317 - root - INFO - optimizer_type Adam
+2026-11-11 07:41:26,317 - root - INFO - plot_animations False
+2026-11-11 07:41:26,317 - root - INFO - nettype pangu_plasim
+2026-11-11 07:41:26,317 - root - INFO - group s2s-dev
+2026-11-11 07:41:26,317 - root - INFO - exp_dir /lus/flare/projects/S2Storm/s2storm/runs/bing/hc/sstanom
+2026-11-11 07:41:26,318 - root - INFO - fresh_start False
+2026-11-11 07:41:26,318 - root - INFO - use_transformer_engine False
+2026-11-11 07:41:26,318 - root - INFO - early_stopping False
+2026-11-11 07:41:26,318 - root - INFO - project Pangu-S2S
+2026-11-11 07:41:26,318 - root - INFO - name S2S-SI
+2026-11-11 07:41:26,318 - root - INFO - entity binggong
+2026-11-11 07:41:26,319 - root - INFO - vae_loss True
+2026-11-11 07:41:26,319 - root - INFO - vae_loss_weight 0.01
+2026-11-11 07:41:26,319 - root - INFO - mode train
+2026-11-11 07:41:26,319 - root - INFO - diffusion_model_type SI
+2026-11-11 07:41:26,319 - root - INFO - num_ensemble_members 1
+2026-11-11 07:41:26,319 - root - INFO - component 8
+2026-11-11 07:41:26,319 - root - INFO - base_channels 2
+2026-11-11 07:41:26,320 - root - INFO - z_channels 2
+2026-11-11 07:41:26,320 - root - INFO - test_iterations 10000000000
+2026-11-11 07:41:26,320 - root - INFO - checkpoint_paht_diff /project/pedramh/bing/S2S/v2.0/HPC_scripts/results/S2S_SSTCOND/si_c1_sstcond/training_checkpoints/diff_ckpt_6001.tar
+2026-11-11 07:41:26,320 - root - INFO - config_filepath /dev/shm/s41/checkpoints_sstanom/config/exp16_midway_sstanom.yaml
+2026-11-11 07:41:26,320 - root - INFO - has_diagnostic True
+2026-11-11 07:41:26,320 - root - INFO - cond_anom_dir /dev/shm/s41/checkpoints_sstanom/config/cond_anom
+2026-11-11 07:41:26,320 - root - INFO - inference_steps 45
+2026-11-11 07:41:26,321 - root - INFO - init_date_set None
+2026-11-11 07:41:26,321 - root - INFO - world_size 1
+2026-11-11 07:41:26,321 - root - INFO - local_rank 0
+2026-11-11 07:41:26,321 - root - INFO - run_num S41u_sstanom_20250106
+2026-11-11 07:41:26,321 - root - INFO - resuming False
+2026-11-11 07:41:26,321 - root - INFO - run_iter 1
+2026-11-11 07:41:26,322 - root - INFO - ---------------------------------------------------
+/opt/aurora/26.181.0/frameworks/aurora_frameworks-2026.1.0/lib/python3.12/site-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+2026:11:11-07:41:26:754756 |CCL_WARN| did not find MPI-launcher specific variables, switch to ATL/OFI, to force enable ATL/MPI set CCL_ATL_TRANSPORT=mpi
+2026:11:11-07:41:26:754756 |CCL_WARN| value of CCL_PROCESS_LAUNCHER changed to be pmix (default:hydra)
+2026:11:11-07:41:26:754756 |CCL_WARN| PMIx_Init failed: PMIX_ERR_UNREACH
+2026:11:11-07:41:26:754756 |CCL_WARN| could not get local_idx/count from environment variables, trying to get them from ATL
+2026:11:11-07:41:26:754756 |CCL_WARN| Could not initialize Sysman API using `zesInit`. Sysman API was probably initialized externally using legacy ZES_ENABLE_SYSMAN flag. oneCCL will falback to legacy behavior
+2026-11-11 07:41:26,851 - root - INFO - rank 0, begin data loader init
+2026-11-11 07:41:27,028 - root - WARNING - Could not open constant-boundary file for start date 1979-01-01 00:00:00. Falling back to /lus/flare/projects/S2Storm/s2storm/aurora_bundle_v5/h5data/2019_0000.h5. Original error: [Errno 2] Unable to synchronously open file (unable to open file: name = '/lus/flare/projects/S2Storm/s2storm/aurora_bundle_v5/h5data/1979_0000.h5', errno = 2, error message = 'No such file or directory', flags = 0, o_flags = 0)
+2026-11-11 07:41:29,026 - root - WARNING - Could not open constant-boundary file for start date 2018-01-01 00:00:00. Falling back to /lus/flare/projects/S2Storm/s2storm/aurora_bundle_v5/h5data/2019_0000.h5. Original error: [Errno 2] Unable to synchronously open file (unable to open file: name = '/lus/flare/projects/S2Storm/s2storm/aurora_bundle_v5/h5data/2018_0000.h5', errno = 2, error message = 'No such file or directory', flags = 0, o_flags = 0)
+2026-11-11 07:41:29,163 - root - INFO - rank 0, data loader initialized
+2026-11-11 07:41:29,185 - root - INFO - The output directories /lus/flare/projects/S2Storm/s2storm/ext/S2S/v2.0/HPC_scripts/spectra_out/8c1bc7f9-4192-4155-bb78-c2f24432439e ; /lus/flare/projects/S2Storm/s2storm/ext/S2S/v2.0/HPC_scripts/gif_out/8c1bc7f9-4192-4155-bb78-c2f24432439e; /lus/flare/projects/S2Storm/s2storm/ext/S2S/v2.0/HPC_scripts/acc_plots/8c1bc7f9-4192-4155-bb78-c2f24432439e
+2026-11-11 07:41:29,249 - root - INFO - Created directory: /lus/flare/projects/S2Storm/s2storm/ext/S2S/v2.0/HPC_scripts/spectra_out/8c1bc7f9-4192-4155-bb78-c2f24432439e
+2026-11-11 07:41:29,249 - root - INFO - Created directory: /lus/flare/projects/S2Storm/s2storm/ext/S2S/v2.0/HPC_scripts/gif_out/8c1bc7f9-4192-4155-bb78-c2f24432439e
+2026-11-11 07:41:29,249 - root - INFO - Created directory: /lus/flare/projects/S2Storm/s2storm/ext/S2S/v2.0/HPC_scripts/acc_plots/8c1bc7f9-4192-4155-bb78-c2f24432439e
+2026-11-11 07:41:29,249 - root - INFO - Params
+2026-11-11 07:41:29,249 - root - INFO - Self.epoch: 0 in Trainer
+2026-11-11 07:41:29,249 - root - INFO - Base model: latent=si, latent_cond=sst, sst_cond_mode=persistent, mc_dropout=True, temperature=1.0, feedback=base
+/opt/aurora/26.181.0/frameworks/aurora_frameworks-2026.1.0/lib/python3.12/site-packages/torch/functional.py:504: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /lus/tegu/projects/datasets/software/26.181.0/wheelforge/repositories/pytorch_2.13.0_patched_08_02_2026/pytorch/aten/src/ATen/native/TensorShape.cpp:4215.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+2026-11-11 07:41:30,087 - root - INFO - Number of trainable model parameters: 60871312
+2026-11-11 07:41:31,046 - root - INFO - Base model loaded from /dev/shm/s41/checkpoints_sstanom/loaded/3_base_full_state_rollout_finetuned_sstanom/rollout_ckpt_650.tar (epoch=2, iters=650)
+2026-11-11 07:41:31,056 - root - INFO - rank 0, begin data loader init
+2026-11-11 07:41:31,064 - root - WARNING - Could not open constant-boundary file for start date 1979-01-01 00:00:00. Falling back to /lus/flare/projects/S2Storm/s2storm/aurora_bundle_v5/h5data/2019_0000.h5. Original error: [Errno 2] Unable to synchronously open file (unable to open file: name = '/lus/flare/projects/S2Storm/s2storm/aurora_bundle_v5/h5data/1979_0000.h5', errno = 2, error message = 'No such file or directory', flags = 0, o_flags = 0)
+2026-11-11 07:41:31,136 - root - WARNING - Could not open constant-boundary file for start date 2018-01-01 00:00:00. Falling back to /lus/flare/projects/S2Storm/s2storm/aurora_bundle_v5/h5data/2019_0000.h5. Original error: [Errno 2] Unable to synchronously open file (unable to open file: name = '/lus/flare/projects/S2Storm/s2storm/aurora_bundle_v5/h5data/2018_0000.h5', errno = 2, error message = 'No such file or directory', flags = 0, o_flags = 0)
+2026-11-11 07:41:31,201 - root - INFO - rank 0, data loader initialized
+2026-11-11 07:41:31,590 - root - INFO - Postprocess SI loaded from /dev/shm/s41/checkpoints_sstanom/loaded/4_postprocess_si/pp_si_ckpt_11400.tar (iters=11400, 96 fields, max_lead_steps=10, blend=1.0)
+2026-11-11 07:41:31,667 - root - INFO -   residual_std range: 0.01095 .. 0.3982
+2026-11-11 07:41:31,668 - root - INFO - s2storm: init dates requested ['2025-01-06'] -> dataset ['2025-01-06 00:00:00']
+2026-11-11 07:41:31,668 - root - INFO - Running 1 init dates from 1 sel_dates (years [2025])
+2026-11-11 07:41:31,668 - root - INFO -   first: 2025-01-06 00:00:00   last: 2025-01-06 00:00:00
+2026-11-11 07:41:31,668 - root - INFO - rank 0: 1 init dates x 1 members [0]
+/lus/flare/projects/S2Storm/s2storm/ext/S2S/v2.0/inference_postprocess_si.py:673: FutureWarning: cftime_range() is deprecated, please use xarray.date_range(..., use_cftime=True) instead.
+  time_range = xr.cftime_range(
+2026-11-11 07:58:40,336 - root - INFO - saved pangu_plasim_S41u_sstanom_20250106_24h_45step_2025010600_ens_0.nc
+2026-11-11 07:58:49,072 - root - INFO - rank 0: batch 0 done (1037s elapsed)
+/opt/aurora/26.181.0/frameworks/aurora_frameworks-2026.1.0/lib/python3.12/site-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+2026-11-11 07:58:49,082 - root - INFO - All members written in 1037s
+World rank: 0
+Pin memory is set to  False
+Pin memory is set to  False
+Embedding Dimensions are 240
+mask_output is False. Land variables output will not be masked.
+mask_output is False. Ocean variables output will not be masked.
+Num diagnostic vars: 2
+Pad sizes in 3D patch embedding
+(0, 0, 0, 0, 1, 0)
+Patch Size
+(2, 2, 2)
+Embed Dim:
+240
+Input resolution:
+(10, 90, 180)
+depth
+2
+num_heads
+6
+drop_path:
+[0.0, 0.028571428571428574]
+Pin memory is set to  False
+Pin memory is set to  False
+select the fixed dates

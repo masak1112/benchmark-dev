@@ -1,0 +1,56 @@
+#!/bin/bash
+#PBS -N ecmwf_hc_mjo
+#PBS -q develop
+#PBS -l select=1:ncpus=1:mem=64GB
+#PBS -l walltime=01:00:00
+#PBS -j oe
+#PBS -A UCHI0014
+
+# Run step2 + step4 for ECMWF hindcast MJO dates.
+# Uses ec_s2s_hindcast_mjo/ grib files (reforecasts, not operational).
+#
+# Submit:
+#   DATES_FILE=/glade/work/bgong/MJO_modular/run_scripts/ecmwf_hindcast_ready.txt
+#   CHUNK=5
+#   NDATES=$(wc -l < ${DATES_FILE})
+#   NJOBS=$(( (NDATES + CHUNK - 1) / CHUNK ))
+#   qsub -J 0-$((NJOBS-1)) -v CHUNK=${CHUNK},DATES_FILE=${DATES_FILE} \
+#        /glade/work/bgong/MJO_modular/run_scripts/run_ecmwf_hindcast_step2_step4.pbs
+
+set -euo pipefail
+
+module load wgrib2
+
+REPO_ROOT=/glade/work/bgong/MJO_modular
+CONFIG=${REPO_ROOT}/config/pipeline_config.yaml
+DATES_FILE=${DATES_FILE:-${REPO_ROOT}/run_scripts/ecmwf_hindcast_ready.txt}
+CHUNK=${CHUNK:-5}
+PY=/glade/work/bgong/mjocast_env/bin/python
+
+TASK_ID=${PBS_ARRAY_INDEX:-0}
+START=$(( TASK_ID * CHUNK + 1 ))
+END=$(( START + CHUNK - 1 ))
+
+echo "=== ECMWF hindcast MJO  task=${TASK_ID}  dates=${START}-${END} ==="
+echo "Host  : $(hostname)"
+echo "Start : $(date)"
+
+DATE_ARGS=""
+while IFS= read -r date; do
+    DATE_ARGS="${DATE_ARGS} --date ${date}"
+done < <(sed -n "${START},${END}p" "${DATES_FILE}")
+
+if [ -z "${DATE_ARGS}" ]; then
+    echo "No dates for this task — exiting."
+    exit 0
+fi
+
+cd "${REPO_ROOT}"
+
+echo "--- Step 2: prepare forecast files ---"
+${PY} src/step2_prepare_forecasts.py --config "${CONFIG}" --dataset ecmwf_s2s ${DATE_ARGS}
+
+echo "--- Step 4: compute RMM output ---"
+${PY} src/step4_run_forecasts.py --config "${CONFIG}" --dataset ecmwf_s2s ${DATE_ARGS}
+
+echo "Done: $(date)"

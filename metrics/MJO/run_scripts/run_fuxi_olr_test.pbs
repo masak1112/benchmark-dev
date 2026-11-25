@@ -1,0 +1,20 @@
+#!/bin/bash
+#PBS -N fuxi_olr_test
+#PBS -A UCHI0018
+#PBS -q develop
+#PBS -l walltime=01:00:00
+#PBS -l select=1:ncpus=1:mem=64GB
+#PBS -j oe
+#PBS -o /glade/work/bgong/MJO_results/logs/fuxi_olr_test.log
+set -euo pipefail
+PY=/glade/work/bgong/mjocast_env/bin/python
+cd /glade/work/bgong/MJO_modular
+CFG=config/pipeline_config_olr.yaml
+D=20190103
+echo "step2 start $(date)"
+${PY} src/step2_prepare_forecasts.py --config $CFG --dataset fuxi_s2s --date $D
+echo "step3 start $(date)"
+${PY} src/step3_process_eofs.py --config $CFG
+echo "step4 start $(date)"
+${PY} src/step4_run_forecasts.py --config $CFG --dataset fuxi_s2s --date $D
+echo "done $(date)"

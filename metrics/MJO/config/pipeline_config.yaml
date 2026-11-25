@@ -1,0 +1,226 @@
+# ── MJO Evaluation Pipeline Configuration ──────────────────────
+# All paths, variable choices, resolution, and dataset selections.
+# Modify this file only — do not hardcode any settings in src/ or loaders/.
+
+# ── Variable ────────────────────────────────────────────────────
+# Supported: olr | chi200 | chi250
+variable: chi200
+
+# ── Resolution ──────────────────────────────────────────────────
+# Supported: 1.0 | 1.5  (degrees)
+# If ERA5 obs is at 1.0° and target is 1.5°, obs is regridded before processing.
+# Forecast data is kept at its native resolution unless regrid_forecast: true.
+resolution: 1.0
+regrid_forecast: false   # set true to also regrid forecast files to target resolution
+
+# ── ERA5 Observation Sources ─────────────────────────────────────
+obs:
+  # Velocity potential at 200 hPa (for chi200)
+  era5_vp200_dir: /glade/campaign/univ/uchi0014/yqsun/pangu_s2s/newdata/velocity_potential_200
+
+  # ERA5 h5 input files for chi250 (VectorWind-based computation)
+  era5_h5_dir: /glade/campaign/univ/uchi0014/yqsun/v2.1_fixed/DATA3
+
+  # MJOcast built-in ERA5 OLR obs (for olr variable or chi250 2019 gap fill)
+  era5_mjocast_obs_dir: /glade/work/bgong/MJO/MJOcast/MJOcast/Observations
+
+  # Output directory for processed obs files (one subdir per variable)
+  base_obs_dir: /glade/work/bgong/MJO_results/obs
+
+  # Climatology base period
+  climo_start_year: 1979
+  climo_end_year: 2018
+
+  # Anomaly timeseries start year (use 2009 for ~7-min run; 1979 for full record)
+  anomaly_start_year: 2002
+
+  # Tropical averaging band (latitude)
+  lat_south: -15.0
+  lat_north:  15.0
+
+# ── MJOcast Installation ─────────────────────────────────────────
+mjocast:
+  base_dir: /glade/work/bgong/MJO/MJOcast/MJOcast
+  user: bgong
+
+# ── Forecast Datasets ────────────────────────────────────────────
+# To add a new dataset: add an entry here and create loaders/<loader_name>.py.
+# No changes to src/ scripts are needed.
+datasets:
+  fuxi_s2s:
+    enabled: true
+    loader: fuxi_s2s
+    src_dir: /glade/derecho/scratch/bgong/fuxi_s2s
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/fuxi_s2s
+    max_members: null
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/fuxi_extract
+
+  fuxi_s2s_ext200:          # FuXi winds log-p extrapolated 250/500 -> 200 hPa (FuXi has no 200 hPa)
+    enabled: true
+    loader: fuxi_s2s_ext200
+    src_dir: /glade/derecho/scratch/bgong/fuxi_s2s
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/fuxi_s2s_ext200
+    max_members: null
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/fuxi_ext200_extract
+
+  fuxi_s2s_15:
+    enabled: true
+    loader: fuxi_s2s
+    src_dir: /glade/derecho/scratch/bgong/fuxi_s2s
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/fuxi_s2s_15
+    max_members: null
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/fuxi_15_extract
+
+  amip_s2s:
+    enabled: true
+    loader: amip_s2s
+    src_dir: /glade/derecho/scratch/bgong/amip_s2s_train_scratch
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/amip_s2s
+    max_members: 20        # seeds 0-4 x 4 members (all 56 used before 2026-10-03; old run in chi200_1p0deg_56mem)
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/amip_extract
+
+  ecmwf_s2s:
+    enabled: true
+    loader: ecmwf_s2s
+    src_dir: /glade/derecho/scratch/bgong/ec_s2s_hindcast_mjo
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/ecmwf_s2s
+    max_members: null     # null = all 51 (1 cf + 50 pf)
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/ecmwf_extract
+
+  ours_si_s2s:
+    enabled: false
+    loader: ours_si_s2s
+    src_dir: /glade/derecho/scratch/bgong/ours_si_s2s_sampling_temperature_15_tg_01
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/ours_si_s2s
+    max_members: null
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/ours_si_extract
+
+  ours_si_v2:
+    enabled: true
+    loader: ours_si_v2
+    src_dir: /glade/derecho/scratch/bgong/ours_si_postprocess_v2/predictions_0903
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/ours_si_v2
+    max_members: null
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/ours_si_v2_extract
+
+  gencast:
+    enabled: true
+    loader: gencast
+    src_dir: /glade/campaign/univ/uchi0018/bing/gencast
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/gencast
+    max_members: 20
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/gencast_extract
+
+  ngcm:
+    enabled: true
+    loader: ngcm
+    src_dir: /glade/derecho/scratch/bgong/ngcm
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/ngcm
+    max_members: null
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/ngcm_extract
+
+  ours_si_v3:
+    enabled: true
+    loader: ours_si_v2
+    src_dir: /glade/derecho/scratch/bgong/ours_si_postprocess_v2/predictions_0903/predictions
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/ours_si_v3
+    max_members: null
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/ours_si_v3_extract
+
+  ours_si_slow_v1:
+    enabled: true
+    loader: ours_si_v2
+    src_dir: /glade/derecho/scratch/bgong/ours_si_slow_postprocess_v1/predictions
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/ours_si_slow_v1
+    max_members: null
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/ours_si_slow_v1_extract
+
+  uc_s2s_v2_fbcorr:
+    enabled: true
+    loader: ours_si_s2s
+    src_dir: /glade/derecho/scratch/bgong/pp_si_fbcorr_allvars
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/uc_s2s_v2_fbcorr
+    max_members: null
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/uc_s2s_v2_fbcorr_extract
+
+  ecmwf_s2s_olr:
+    enabled: true
+    loader: ecmwf_s2s_olr
+    src_dir: /glade/derecho/scratch/bgong/ec_s2s_hindcast_mjo
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/ecmwf_s2s_olr
+    max_members: null
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/ecmwf_olr_extract
+
+  uc_s2s_multicond_2019:
+    enabled: true
+    loader: ours_si_v2
+    src_dir: /glade/derecho/scratch/bgong/pp_si_infer_multicond_2019/predictions
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/uc_s2s_multicond_2019
+    max_members: null
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/uc_s2s_multicond_extract
+
+  uc_s2s_multicond_pptwelvek:
+    enabled: true
+    loader: ours_si_v2
+    src_dir: /glade/derecho/scratch/bgong/pp_si_infer_multicond_pp12800/predictions
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/uc_s2s_multicond_pptwelvek
+    max_members: null
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/uc_s2s_multicond_pptwelvek_extract
+
+  uc_s2s_sstanom:
+    enabled: true
+    loader: ours_si_v2
+    src_dir: /glade/derecho/scratch/bgong/pp_si_infer_sstanom/predictions
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/uc_s2s_sstanom
+    max_members: null
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/uc_s2s_sstanom_extract
+
+  ngcm_campaign:
+    enabled: true
+    loader: ngcm_campaign
+    src_dir: /glade/derecho/scratch/bgong/ngcm/climatology
+    out_dir: /glade/campaign/univ/uchi0018/bing/mjo/ngcm_campaign
+    max_members: null
+    scratch_dir: /glade/derecho/scratch/bgong/tmp/ngcm_campaign_extract
+
+# ── Plot Settings ────────────────────────────────────────────────
+plots:
+  # Phase space plots: specify YYYYMM months; first available init date each month is used.
+  # Two plots are generated, each showing obs + all enabled datasets on the same figure.
+  phase_space_months:
+    - "20190502"
+    - "20190509"
+    - "20190516"
+    - "20190523"
+    - "20190530"
+    - "20190606"
+    - "20190613"
+    - "20190620"
+    - "20190627"
+    - "20190704"
+    - "20190711"
+    - "20190718"
+    - "20190725"
+    - "20200502"
+    - "20200509"
+    - "20200516"
+
+  # Combined ACC plot: all enabled datasets as separate curves.
+  acc_plot_filename: bivariate_acc_comparison.png
+
+  # Output directory for multi-dataset comparison plots
+  plot_dir: /glade/campaign/univ/uchi0018/bing/mjo/plots
+
+# ── Environment ──────────────────────────────────────────────────
+conda_env: /glade/work/bgong/mjocast_env
+
+# ── PBS Job Settings ─────────────────────────────────────────────
+pbs:
+  account: UCHI0018
+  queue: develop
+  walltime_step2: "06:00:00"
+  walltime_step45: "06:00:00"
+  mem: 64GB
+  ncpus: 1
+  log_dir: /glade/work/bgong/MJO_results/logs
+

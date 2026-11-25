@@ -1,0 +1,65 @@
+# S41 evaluation package, Aurora site config (s41eval.bing_eval; brief 2026-11-11 tasks 4-6).
+# Paths: ${root} is substituted. Everything the package reads or writes is here (no hard-coded paths in the code).
+site: aurora
+root: /lus/flare/projects/S2Storm/s2storm
+python: /opt/aurora/26.181.0/frameworks/aurora_frameworks-2026.1.0/bin/python3
+out_root: ${root}/runs/bing/eval
+starts_csv: ${root}/runs/bing/starts/starts.csv
+first: '2019-01-01'
+last: '2026-12-31'
+fields: [t2m, tp24, msl, z500, u850, u200, u250, t850, sst, olr, swvl1, z50, u50]
+grids: [g15, g30]
+g30_fields: [t2m, tp24, z500, sst, olr, u850]      # 3-degree sensitivity: headline fields
+n_draws: 10                                        # random 11-member draws
+run_systems: [ucs2s_sstanom, ucs2s_plain, fuxi]
+est_s: {reduce: 900, verif: 3000, score: 3200}
+start_notes:                                       # copied into provenance.json
+  ucs2s_sstanom|2026-09-21: run with a zero 2026-11-04 boundary file (ARCO gap, incl. TOA solar); lead days >= 44 suspect (scores use days <= 42); to be rerun when ARCO fills 11-04
+  ucs2s_plain|2026-09-21: run with a zero 2026-11-04 boundary file (ARCO gap, incl. TOA solar); lead days >= 44 suspect (scores use days <= 42); to be rerun when ARCO fills 11-04
+
+verification:
+  source: store                                    # 'store' = data/era5_bing_1p5 (scripts/bing_eval_stage.py); 'v0' = bing_scores v0 inputs
+  store: ${root}/data/era5_bing_1p5
+  lsm: ${root}/data/era5_bing_1p5/lsm.npy
+
+climatology:
+  member_years: [1991, 2020]                       # 30-member same-calendar-date reference ensembles (fixed and trend-adjusted)
+  stage_dirs: [${root}/data/clim_trend/stage, ${root}/data/clim_trend_bing/stage, ${root}/data/clim_trend_bing_v1/stage]
+  trend_dirs: [${root}/data/clim_trend, ${root}/data/clim_trend_bing, ${root}/data/clim_trend_bing_v1]
+
+systems:
+  ucs2s_sstanom:
+    label: UC-S2S SST-anomaly
+    format: ucs2s_h25
+    path: ${root}/runs/bing/hc/sstanom/S2S_SSTANOM/S41u_sstanom_{date}/predictions/pangu_plasim_S41u_sstanom_{date}_24h_45step_{date}00_ens_{member}_h25.nc
+    members: 30
+    time: 00z
+  ucs2s_plain:
+    label: plain UC-S2S
+    format: ucs2s_h25
+    path: ${root}/runs/bing/hc/plain/S2S/S41u_plain_{date}/predictions/pangu_plasim_S41u_plain_{date}_24h_45step_{date}00_ens_{member}_h25.nc
+    members: 30
+    time: 00z
+  fuxi:
+    label: FuXi-S2S
+    format: fuxi_h25
+    path: ${root}/runs/bing/hc/fuxi/{date}/m{member:02d}_h25.nc
+    members: 30
+    time: day
+    missing_fields: [swvl1]
+  ifs_rt:
+    label: IFS ENS extended range, real-time 2025-26 (different product from the 2019-24 reforecasts)
+    format: ifs_ecds_grib
+    path: ${root}/runs/bing/ifs/data/{date}
+    members: 101
+    det_members: 11
+    time: 00z
+    sampling_override: {t2m: prev, sst: prev}
+    first: '2025-01-01'
+    missing_fields: [swvl1, z50, u50, u250]
+  ifs_bing:
+    label: IFS reforecasts 2019-24 (Bing; format to be confirmed)
+    format: netcdf_generic
+    path: null
+    members: 11
+    time: 00z

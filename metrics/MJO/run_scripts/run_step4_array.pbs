@@ -1,0 +1,42 @@
+#!/bin/bash
+#PBS -N mjo_step4_array
+#PBS -q develop
+#PBS -l select=1:ncpus=1:mem=64GB
+#PBS -l walltime=02:00:00
+#PBS -j oe
+#PBS -A UCHI0018
+
+# 8 dates per task to reduce concurrent I/O on campaign filesystem.
+# Submit: qsub -J 0-N run_scripts/run_step4_array.pbs
+
+set -euo pipefail
+
+REPO_ROOT=/glade/work/bgong/MJO_modular
+CONFIG=${CONFIG:-${REPO_ROOT}/config/pipeline_config.yaml}
+DATES_FILE=${DATES_FILE:-${REPO_ROOT}/run_scripts/ours_si_v2_rmm_todo.txt}
+DATASET=${DATASET:-ours_si_v2}
+CHUNK=${CHUNK:-8}
+PY=/glade/work/bgong/mjocast_env/bin/python
+
+TASK_ID=${PBS_ARRAY_INDEX:-0}
+START=$(( TASK_ID * CHUNK + 1 ))
+END=$(( START + CHUNK - 1 ))
+
+echo "=== Step 4 task ${TASK_ID} (dates ${START}–${END}) ==="
+echo "Host  : $(hostname)"
+echo "Start : $(date)"
+
+DATE_ARGS=""
+while IFS= read -r date; do
+    DATE_ARGS="${DATE_ARGS} --date ${date}"
+done < <(sed -n "${START},${END}p" "${DATES_FILE}")
+
+if [ -z "${DATE_ARGS}" ]; then
+    echo "No dates for this task — exiting."
+    exit 0
+fi
+
+cd "${REPO_ROOT}"
+${PY} src/step4_run_forecasts.py --config "${CONFIG}" --dataset "${DATASET}" ${DATE_ARGS}
+
+echo "Done: $(date)"

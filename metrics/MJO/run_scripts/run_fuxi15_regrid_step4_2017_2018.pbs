@@ -1,0 +1,84 @@
+#!/bin/bash
+#PBS -N fuxi15_rg_s4
+#PBS -A UCHI0018
+#PBS -q develop
+#PBS -l walltime=06:00:00
+#PBS -l select=1:ncpus=1:mem=64GB
+#PBS -o /glade/work/bgong/MJO_results/logs/fuxi15_regrid_step4_2017_2018.out
+#PBS -e /glade/work/bgong/MJO_results/logs/fuxi15_regrid_step4_2017_2018.err
+#PBS -j oe
+
+source /etc/profile.d/modules.sh
+module load conda
+conda activate /glade/work/bgong/mjocast_env
+
+cd /glade/work/bgong/MJO_modular
+
+echo "=== Step 1: Copy + regrid 2017/2018 native 1.5deg files to 1.0deg ==="
+echo "Start: $(date)"
+
+python - <<'EOF'
+import numpy as np
+import xarray as xr
+import glob, os
+from scipy.interpolate import RegularGridInterpolator
+
+src_dir = '/glade/campaign/univ/uchi0018/bing/mjo/fuxi_s2s_15/chi200_1p5deg/forecast_files'
+dst_dir = '/glade/campaign/univ/uchi0018/bing/mjo/fuxi_s2s_15/chi200_1p0deg/forecast_files'
+os.makedirs(dst_dir, exist_ok=True)
+
+# Get target lat/lon from a reference file
+ref = xr.open_dataset(sorted(glob.glob('/glade/campaign/univ/uchi0018/bing/mjo/ours_si_v3/chi200_1p0deg/forecast_files/*.nc'))[0])
+lat_tgt = ref.lat.values
+lon_tgt = ref.lon.values
+ref.close()
+print(f'Target lat: {lat_tgt[0]}..{lat_tgt[-1]} ({len(lat_tgt)} pts)')
+print(f'Target lon: {lon_tgt[0]}..{lon_tgt[-1]} ({len(lon_tgt)} pts)')
+
+# Find native files not yet regridded
+src_files = sorted(glob.glob(os.path.join(src_dir, '*.nc')))
+done = set(os.path.basename(f) for f in glob.glob(os.path.join(dst_dir, '*.nc')))
+to_do = [f for f in src_files if os.path.basename(f).replace('chi200_forecast_', 'chi200_forecast_') not in done]
+print(f'Files to regrid: {len(to_do)}')
+
+for fp in to_do:
+    dst = os.path.join(dst_dir, os.path.basename(fp))
+    ds = xr.open_dataset(fp)
+    lat_src = ds.lat.values
+    lon_src = ds.lon.values
+
+    new_vars = {}
+    for var in ['rlut', 'ua_850', 'ua_200']:
+        arr = ds[var].values  # (ensemble, time, lat, lon)
+        n_ens, n_t, n_lat, n_lon = arr.shape
+        out = np.zeros((n_ens, n_t, len(lat_tgt), len(lon_tgt)), dtype=np.float32)
+        for e in range(n_ens):
+            for t in range(n_t):
+                interp = RegularGridInterpolator(
+                    (lat_src, lon_src), arr[e, t],
+                    method='linear', bounds_error=False, fill_value=None)
+                pts = np.array(np.meshgrid(lat_tgt, lon_tgt, indexing='ij')).reshape(2,-1).T
+                out[e, t] = interp(pts).reshape(len(lat_tgt), len(lon_tgt))
+        new_vars[var] = xr.DataArray(out, dims=ds[var].dims,
+                                      coords={**{d: ds[var].coords[d] for d in ds[var].dims
+                                                 if d not in ('lat','lon')},
+                                              'lat': lat_tgt, 'lon': lon_tgt},
+                                      attrs=ds[var].attrs)
+    ds_new = xr.Dataset(new_vars, attrs=ds.attrs)
+    ds.close()
+    ds_new.to_netcdf(dst + '.tmp')
+    os.replace(dst + '.tmp', dst)
+    print(f'  Regridded: {os.path.basename(dst)}', flush=True)
+
+print('Regrid done.')
+EOF
+
+echo "=== Step 2: Run step4 for all valid 2017/2018 dates ==="
+# All 2017/2018 dates are after obs window (obs starts 2002-04-30)
+DATES=$(ls /glade/campaign/univ/uchi0018/bing/mjo/fuxi_s2s_15/chi200_1p5deg/forecast_files/*.nc \
+  | grep -oP '\d{8}' | sort | uniq | awk '$1 >= "20170101"' | awk '{printf "--date %s ", $1}')
+
+python src/step4_run_forecasts.py --config config/pipeline_config.yaml --dataset fuxi_s2s_15 $DATES
+
+echo "End: $(date)"
+echo "=== Done ==="

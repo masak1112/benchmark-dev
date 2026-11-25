@@ -1,0 +1,12 @@
+#!/bin/bash
+#PBS -N si_step4
+#PBS -A UCHI0014
+#PBS -q develop
+#PBS -l walltime=03:00:00
+#PBS -l select=1:ncpus=1:mem=200GB
+#PBS -j oe
+#PBS -o /glade/work/bgong/MJO_results/logs/si_s2s_step4.log
+set -euo pipefail
+cd /glade/work/bgong/MJO_modular
+/glade/work/bgong/mjocast_env/bin/python src/step4_run_forecasts.py --config config/pipeline_config.yaml --dataset amip_s2s
+echo "step4 done $(date)"

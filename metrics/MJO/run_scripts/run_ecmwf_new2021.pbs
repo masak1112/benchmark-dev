@@ -1,0 +1,22 @@
+#!/bin/bash
+#PBS -N ecmwf_new2021
+#PBS -q develop
+#PBS -l select=1:ncpus=1:mem=64GB
+#PBS -l walltime=01:00:00
+#PBS -j oe
+#PBS -A UCHI0014
+
+set -euo pipefail
+module load wgrib2 2>/dev/null || true
+REPO_ROOT=/glade/work/bgong/MJO_modular
+CONFIG=${REPO_ROOT}/config/pipeline_config.yaml
+PY=/glade/work/bgong/mjocast_env/bin/python
+
+echo "=== ECMWF new 2021 dates ==="
+echo "Host: $(hostname)  Start: $(date)"
+
+cd "${REPO_ROOT}"
+${PY} src/step2_prepare_forecasts.py --config "${CONFIG}" --dataset ecmwf_s2s --date 20210805 --date 20210809
+${PY} src/step4_run_forecasts.py     --config "${CONFIG}" --dataset ecmwf_s2s --date 20210805 --date 20210809
+
+echo "Done: $(date)"

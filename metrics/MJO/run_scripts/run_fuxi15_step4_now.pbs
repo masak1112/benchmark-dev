@@ -1,0 +1,21 @@
+#!/bin/bash
+#PBS -N fuxi15_step4
+#PBS -A UCHI0018
+#PBS -q develop
+#PBS -l walltime=04:00:00
+#PBS -l select=1:ncpus=1:mem=64GB
+#PBS -o /glade/work/bgong/MJO_results/logs/fuxi15_step4.out
+#PBS -e /glade/work/bgong/MJO_results/logs/fuxi15_step4.err
+#PBS -j oe
+
+source /etc/profile.d/modules.sh
+module load conda
+conda activate /glade/work/bgong/mjocast_env
+
+cd /glade/work/bgong/MJO_modular
+
+echo "=== Running step4 for fuxi_s2s_15 (all available regridded files) ==="
+echo "Start: $(date)"
+python src/step4_run_forecasts.py --config config/pipeline_config.yaml --dataset fuxi_s2s_15
+echo "End: $(date)"
+echo "=== Done ==="

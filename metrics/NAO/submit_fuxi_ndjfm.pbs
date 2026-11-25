@@ -1,0 +1,18 @@
+#!/bin/bash
+#PBS -A UCHI0014
+#PBS -N nao_fuxi_ndjfm
+#PBS -q develop
+#PBS -l walltime=06:00:00
+#PBS -l select=1:ncpus=16:mem=60GB
+#PBS -j oe
+#PBS -o /glade/derecho/scratch/bgong/tmp/nao_fuxi_ndjfm.log
+# FuXi Nov-Mar NAO index cache (NAO_SEASON=ndjfm), Nov 2018 - Dec 2021.
+# Pass 1: inits matched to the 51 common UC-S2S V2 / SSTanom dates; pass 2: the rest (cached inits skipped).
+cd /glade/work/bgong/benchmark-dev/metrics/NAO
+export NAO_SEASON=ndjfm
+P=/glade/work/bgong/conda-envs/my_env/bin/python
+head -51 dates_fuxi_ndjfm_ordered.txt > /glade/derecho/scratch/bgong/tmp/nao_fuxi_ndjfm_pass1.txt
+$P nao_extract.py --model fuxi --workers 16 --dates-file /glade/derecho/scratch/bgong/tmp/nao_fuxi_ndjfm_pass1.txt
+echo "=== pass 1 done $(date)"
+$P nao_extract.py --model fuxi --workers 16 --dates-file dates_fuxi_ndjfm_ordered.txt
+echo "=== pass 2 done $(date)"

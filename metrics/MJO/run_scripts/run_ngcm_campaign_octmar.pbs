@@ -1,0 +1,35 @@
+#!/bin/bash
+#PBS -N ngcm_camp_octmar
+#PBS -A UCHI0018
+#PBS -q develop
+#PBS -l walltime=06:00:00
+#PBS -l select=1:ncpus=1:mem=64GB
+#PBS -j oe
+#PBS -o /glade/work/bgong/MJO_results/logs/ngcm_camp_octmar.log
+
+set -euo pipefail
+DATES_FILE=/glade/work/bgong/MJO_modular/run_scripts/ngcm_campaign_oct_mar.txt
+PY=/glade/work/bgong/mjocast_env/bin/python
+REPO=/glade/work/bgong/MJO_modular
+
+cd "${REPO}"
+echo "=== NGCM campaign Oct-Mar step2 ==="
+echo "Start: $(date)"
+
+while IFS= read -r date; do
+    [ -z "$date" ] && continue
+    OUT=/glade/campaign/univ/uchi0018/bing/mjo/ngcm_campaign/chi200_1p0deg/chi200_forecast_${date}.nc
+    if [ -f "$OUT" ]; then
+        echo "Already exists, skipping: $date"
+        continue
+    fi
+    echo "Processing $date ..."
+    ${PY} src/step2_prepare_forecasts.py --config config/pipeline_config.yaml \
+        --dataset ngcm_campaign --date "$date"
+done < "${DATES_FILE}"
+
+echo "=== Step2 done, starting step4 ==="
+${PY} src/step4_run_forecasts.py --config config/pipeline_config.yaml \
+    --dataset ngcm_campaign
+
+echo "All done: $(date)"

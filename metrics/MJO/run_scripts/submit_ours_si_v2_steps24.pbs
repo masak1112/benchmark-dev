@@ -1,0 +1,20 @@
+#!/bin/bash
+#PBS -N mjo_v2_steps24
+#PBS -A UCHI0014
+#PBS -q develop
+#PBS -l select=1:ncpus=4:mem=64GB
+#PBS -l walltime=06:00:00
+#PBS -j oe
+#PBS -o /glade/work/bgong/MJO_results/logs/mjo_v2_steps24.log
+
+PY=/glade/work/bgong/mjocast_env/bin/python
+
+cd /glade/work/bgong/MJO_modular
+
+echo "=== Step 2: prepare forecasts for ours_si_v2 ==="
+$PY src/step2_prepare_forecasts.py --config config/pipeline_config.yaml --dataset ours_si_v2
+
+echo "=== Step 4: run MJOcast RMM projection for ours_si_v2 ==="
+$PY src/step4_run_forecasts.py --config config/pipeline_config.yaml --dataset ours_si_v2
+
+echo "=== Done ==="

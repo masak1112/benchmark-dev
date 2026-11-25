@@ -1,0 +1,16 @@
+#!/bin/bash
+#PBS -N field_fbcorr
+#PBS -A UCHI0014
+#PBS -q develop
+#PBS -l select=1:ncpus=4:mem=64GB
+#PBS -l walltime=06:00:00
+#PBS -j oe
+#PBS -o /glade/work/bgong/MJO_modular/field_fbcorr.o
+
+echo "Start: $(date)"
+echo "Host:  $(hostname)"
+
+/glade/work/bgong/mjocast_env/bin/python \
+  /glade/derecho/scratch/bgong/tmp/claude-47777/-glade-work-bgong/86b2e48d-e8b8-473f-a452-425bae7c1911/scratchpad/field_bias_correct_rmm.py
+
+echo "End: $(date)"
