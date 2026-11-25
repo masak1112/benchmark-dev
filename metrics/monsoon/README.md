@@ -51,9 +51,7 @@ IMD 2023–24 files have a larger land mask (106 valid cells against 62) and dim
 every year (30 CMZ cells).
 
 Keep only `data_<year>.nc` files in `IMD_2by2/`, because the onset and threshold scripts read every
-`.nc` file in that folder. An older 2023 file whose missing values are not flagged as missing
-(fill values give a June–September mean of −65 mm/day) is kept in `IMD_2by2_unused/` for reference
-only.
+`.nc` file in that folder.
 
 ## 1. Regridding
 
